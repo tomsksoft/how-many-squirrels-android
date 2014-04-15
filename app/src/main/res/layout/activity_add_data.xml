@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:id="@+id/main_layout">
+
+    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <RadioButton android:id="@+id/current_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dataPage_current_time"
+            android:onClick="onRadioButtonClicked"
+            android:layout_marginLeft="45dp"
+            android:checked="true"/>
+        <RadioButton android:id="@+id/select_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dataPage_select_time"
+            android:onClick="onRadioButtonClicked"
+            android:layout_marginLeft="45dp" />
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/editDate"
+        android:layout_width="250dp"
+        android:layout_marginTop="10dp"
+        android:layout_height="wrap_content"
+        android:editable="false"
+        android:layout_gravity="center_horizontal">
+    </EditText>
+
+    <EditText
+        android:id="@+id/editTime"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:editable="false"
+        android:enabled="false"
+        android:layout_gravity="center_horizontal">
+    </EditText>
+
+    <EditText
+        android:id="@+id/editAmount"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:hint="@string/dataPage_inputHint"
+        android:layout_gravity="center_horizontal"
+        android:inputType="number">
+    </EditText>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginLeft="25dp"
+        android:layout_marginRight="25dp"
+        android:gravity="bottom"
+        android:layout_gravity="bottom"
+        android:layout_marginTop="25dp">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dataPage_acceptAndMinimize"
+            android:id="@+id/add_line"
+            android:layout_weight="1" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dataPage_acceptAndLookAtGraph"
+            android:id="@+id/delete"
+            android:layout_weight="1" />
+    </LinearLayout>
+</LinearLayout>

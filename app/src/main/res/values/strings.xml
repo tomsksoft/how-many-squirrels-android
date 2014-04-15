@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Counting Stars</string>
+    <string name="mainTabName">Главная</string>
+    <string name="settingsTabName">Настройки</string>
+    <string name="listViewTabName">Данные</string>
+    <string name="settingsPage_ApplyButton">Применить</string>
+    <string name="settingsPage_InputTextHint">Название измеряемых данных</string>
+    <string name="settingsPage_WarningCleanData">Все данные будут удалены. Продолжить?</string>
+    <string name="settingsPage_TextIsSet">Текст установлен</string>
+    <string name="settingsPage_EmptyStr">Пожалуйста, введите название объекта</string>
+    <string name="settingsPage_ConfirmAction">Подтвердите действие</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Отмена</string>
+    <string name="add">Добавить</string>
+    <string name="delete">Удалить</string>
+    <string name="dataPage_current_time">Текущие время и дата</string>
+    <string name="dataPage_select_time">Укажу дату и время сам</string>
+    <string name="dataPage_inputHint">Количество объектов</string>
+    <string name="dataPage_acceptAndMinimize">Ввести и свернуть</string>
+    <string name="dataPage_acceptAndLookAtGraph">Ввести и посмотреть график</string>
+    <string name="dataPage_pageTitle">Ввести и и посмотреть график</string>
+    <string name="listViewPage_errInputAmount">Пожалуйста, введите количество</string>
+    <string name="listViewPage_successAddLine">Строка добавлена!</string>
+
+
+</resources>
