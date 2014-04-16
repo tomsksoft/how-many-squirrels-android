@@ -37,15 +37,16 @@ public class DBHelper extends SQLiteOpenHelper {
         int amountColIndex = c.getColumnIndex("amount");
         int dateColIndex = c.getColumnIndex("date");
 
-        if (c.moveToFirst()){
-            do{
-                Squirrel s = new Squirrel();
-                s.setID(c.getInt(idColIndex));
-                s.setAmount(c.getInt(amountColIndex));
-                s.setDate(c.getLong(dateColIndex));
-                list.add(s);
-            } while (c.moveToNext());
-        }
+        if (!c.moveToFirst())
+            return list;
+
+        do{
+            Squirrel s = new Squirrel();
+            s.setID(c.getInt(idColIndex));
+            s.setAmount(c.getInt(amountColIndex));
+            s.setDate(c.getLong(dateColIndex));
+            list.add(s);
+        } while (c.moveToNext());
         return list;
     };
 }

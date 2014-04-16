@@ -22,8 +22,8 @@ public class SettingsTabActivity extends Fragment implements View.OnClickListene
 
     final static String SHAREDPREFNAME = "HowMuchOfShPref";
     final static String SHARED_PREF_OBJECT_FIELD_NAME = "object_name";
-    final static int CHANGE_OBJ_NAME_DIALOG = 1;
-    EditText objNameInput;
+
+    EditText objNameEditText;
     Button applyBtn;
     DBHelper dbHelper;
     Context context;
@@ -36,17 +36,14 @@ public class SettingsTabActivity extends Fragment implements View.OnClickListene
                              Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.settings_fragment, container, false);
         context = getActivity();
-        objNameInput = (EditText) view.findViewById(R.id.objEditText);
+        objNameEditText = (EditText) view.findViewById(R.id.objEditText);
         applyBtn = (Button) view.findViewById(R.id.applyBtn);
         applyBtn.setOnClickListener(this);
-
         sPref = context.getSharedPreferences(SHAREDPREFNAME, context.MODE_PRIVATE);
         shEditor = sPref.edit();
         dbHelper = new DBHelper(context);
         createConfirmDialog();
-        currentObjectName = getCountedObjectName();
-        if (currentObjectName.length() != 0)
-            objNameInput.setText(currentObjectName);
+        initObjectname();
         return view;
     }
 
@@ -56,7 +53,7 @@ public class SettingsTabActivity extends Fragment implements View.OnClickListene
         ad.setMessage(R.string.settingsPage_WarningCleanData);
         ad.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int arg1) {
-                String objectName = objNameInput.getText().toString().trim();
+                String objectName = objNameEditText.getText().toString().trim();
                 setCountedObjectName(objectName);
             }
         });
@@ -65,24 +62,34 @@ public class SettingsTabActivity extends Fragment implements View.OnClickListene
             }
         });
     }
+    private void initObjectname(){
+        currentObjectName = getCountedObjectName();
+        if (currentObjectName.length() != 0) {
+            objNameEditText.setText(currentObjectName);
+        }
+    }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.applyBtn:{
-                String objectName = objNameInput.getText().toString().trim();
-                if (objectName.length() != 0) {
-                    if (currentObjectName.length() != 0)
-                        ad.show();
-                    else
-                        setCountedObjectName(objectName);
-                    currentObjectName = objectName;
-                }
-                else
-                    Toast.makeText(context, R.string.settingsPage_EmptyStr, Toast.LENGTH_LONG).show();
+                setObjectName();
                 break;
             }
         }
+    }
+
+    private void setObjectName(){
+        String objectName = objNameEditText.getText().toString().trim();
+        if (objectName.length() != 0) {
+            if (currentObjectName.length() != 0)
+                ad.show();
+            else
+                setCountedObjectName(objectName);
+            currentObjectName = objectName;
+        }
+        else
+            Toast.makeText(context, R.string.settingsPage_EmptyStr, Toast.LENGTH_LONG).show();
     }
 
     protected String getCountedObjectName(){

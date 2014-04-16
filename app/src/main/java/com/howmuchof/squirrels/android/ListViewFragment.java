@@ -25,15 +25,15 @@ import java.util.List;
 public class ListViewFragment extends Fragment implements View.OnClickListener{
 
     static final int REQUEST_CODE_ADD = 0;
-    Button btnAdd;
+    Button addBtn;
     ListView listView;
     DBHelper dbHelper;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.listview_fragment, container, false);
-        btnAdd = (Button) view.findViewById(R.id.add_line);
-        btnAdd.setOnClickListener(this);
+        addBtn = (Button) view.findViewById(R.id.add_line);
+        addBtn.setOnClickListener(this);
 
         listView = (ListView) view.findViewById(R.id.listView);
 
@@ -54,8 +54,9 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == getActivity().RESULT_OK)
+        if (resultCode == getActivity().RESULT_OK) {
             fillListView();
+        }
     }
 
     private void fillListView(){
@@ -82,7 +83,7 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
 
         ListAdapter adapter = new SimpleAdapter(getActivity(), items,
                 R.layout.listview_item, new String[]{"amount", "date", "time"},
-                new int[]{R.id.amount, R.id.date, R.id.time});
+                new int[]{R.id.amount_textview, R.id.date_textview, R.id.time_textview});
 
         listView.setAdapter(adapter);
 
