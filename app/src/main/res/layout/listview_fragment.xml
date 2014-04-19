@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
@@ -14,16 +14,37 @@
             android:layout_height="wrap_content"
             android:text="@string/add"
             android:id="@+id/add_line"
-            android:layout_weight="1" />
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/delete"
             android:id="@+id/delete_btn"
-            android:layout_weight="1" />
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/add_line" />
 
-    </LinearLayout>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ok"
+            android:id="@+id/ok_btn"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:visibility="invisible"/>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/cancel"
+            android:id="@+id/cancel_btn"
+            android:visibility="invisible"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@+id/ok_btn" />
+
+    </RelativeLayout >
 
     <ListView
         android:layout_width="wrap_content"

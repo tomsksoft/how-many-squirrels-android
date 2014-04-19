@@ -16,12 +16,13 @@ import java.util.List;
  */
 public class DBHelper extends SQLiteOpenHelper {
 
+    private static String TABLE_NAME = "objects";
     public DBHelper(Context context) {
         super(context, "how-much-of", null, 1);
     }
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("create table objects ("
+        db.execSQL("create table " + TABLE_NAME +" ("
                 + "id integer primary key autoincrement,"
                 + "amount integer, "
                 + "date integer" + ");");
@@ -32,7 +33,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public List<Squirrel> getDataFromDB(SQLiteDatabase db){
         List<Squirrel> list = new ArrayList<Squirrel>();
-        Cursor c = db.query("objects", null, null, null, null, null, null);
+        Cursor c = db.query(TABLE_NAME, null, null, null, null, null, null);
         int idColIndex = c.getColumnIndex("id");
         int amountColIndex = c.getColumnIndex("amount");
         int dateColIndex = c.getColumnIndex("date");
@@ -49,4 +50,10 @@ public class DBHelper extends SQLiteOpenHelper {
         } while (c.moveToNext());
         return list;
     };
+
+    public void deleteRows(SQLiteDatabase db, List<Integer> rowList){
+        for (int id: rowList){
+            db.delete(TABLE_NAME, "id = " + id, null);
+        }
+    }
 }

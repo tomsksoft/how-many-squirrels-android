@@ -20,9 +20,13 @@
     <string name="dataPage_inputHint">Количество объектов</string>
     <string name="dataPage_acceptAndMinimize">Ввести и свернуть</string>
     <string name="dataPage_acceptAndLookAtGraph">Ввести и посмотреть график</string>
-    <string name="dataPage_pageTitle">Ввести и и посмотреть график</string>
-    <string name="listViewPage_errInputAmount">Пожалуйста, введите количество</string>
+    <string name="dataPage_addPageTitle">Ввод новых данных</string>
+    <string name="dataPage_modifyPageTitle">Редактирование записи</string>
+    <string name="dataPage_updateData">Применить изменения</string>
+    <string name="dataPage_cancel">Отменить изменения</string>
+    <string name="dataPage_setCurrentTime">Установить текущее время</string>
+    <string name="dataPage_errInputAmount">Пожалуйста, введите количество</string>
     <string name="listViewPage_successAddLine">Строка добавлена!</string>
-
-
+    <string name="listViewPage_successUpdateLine">Строка изменена!</string>
+    <string name="listViewPage_failUpdateLine">Извините, строка не была обновлена</string>
 </resources>

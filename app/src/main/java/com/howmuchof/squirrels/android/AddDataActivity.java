@@ -87,7 +87,7 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
 
     private void createDBLine(){
         if (amountEdit.getText().toString().length() == 0) {
-            Toast.makeText(this,R.string.listViewPage_errInputAmount, Toast.LENGTH_LONG).show();
+            Toast.makeText(this,R.string.dataPage_errInputAmount, Toast.LENGTH_LONG).show();
             return;
         }
         ContentValues cv = new ContentValues();
@@ -116,14 +116,14 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
     private View.OnFocusChangeListener focusChangeListener = new View.OnFocusChangeListener() {
         public void onFocusChange(View view, boolean gainFocus) {
             switch (view.getId()){
-                case R.id.editDate:{
+                case R.id.date_edit:{
                     if (gainFocus) {
                         showDatePickerDialog();
                         view.clearFocus();
                     }
                     break;
                 }
-                case R.id.editTime:{
+                case R.id.time_edit:{
                     if (gainFocus) {
                         showTimePickerDialog();
                         view.clearFocus();

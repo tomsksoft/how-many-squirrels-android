@@ -41,4 +41,8 @@ public class Squirrel {
     public long getDate(){
         return _date;
     }
+
+    public String toString(){
+        return _id + " " + _amount + " " + _date;
+    }
 }
