@@ -21,7 +21,9 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         ActionBar actionBar = getActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        if (actionBar != null) {
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        }
 
         mainTab = actionBar.newTab().setText(R.string.mainTabName);
         graphViewTab = actionBar.newTab().setText(R.string.graphViewTabName);

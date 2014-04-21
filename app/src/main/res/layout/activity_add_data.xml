@@ -15,14 +15,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/dataPage_current_time"
-            android:onClick="onRadioButtonClicked"
             android:layout_marginLeft="25dp"
             android:checked="true"/>
         <RadioButton android:id="@+id/select_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/dataPage_select_time"
-            android:onClick="onRadioButtonClicked"
             android:layout_marginLeft="25dp" />
     </RadioGroup>
 
@@ -50,7 +48,7 @@
         android:layout_height="wrap_content"
         android:hint="@string/dataPage_inputHint"
         android:layout_gravity="center_horizontal"
-        android:inputType="number">
+        android:inputType="phone">
     </EditText>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -67,14 +65,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/dataPage_acceptAndMinimize"
-            android:id="@+id/add_line"
-            android:layout_weight="1" />
+            android:id="@+id/add_and_minimize"
+            android:layout_weight="1"
+            android:onClick="onClick"/>
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/dataPage_acceptAndLookAtGraph"
-            android:id="@+id/delete"
-            android:layout_weight="1" />
+            android:id="@+id/add_and_go_to_graph_view"
+            android:layout_weight="1"
+            android:onClick="onClick"/>
     </LinearLayout>
 </LinearLayout>

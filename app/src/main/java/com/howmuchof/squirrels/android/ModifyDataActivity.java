@@ -10,11 +10,10 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.RadioButton;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -32,9 +31,6 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
     EditText dateEdit;
     EditText timeEdit;
     EditText amountEdit;
-    Button updateBtn;
-    Button cancelBtn;
-    Button setCurrentTimeBtn;
 
     DBHelper dbHelper;
     int id;
@@ -57,12 +53,6 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
         dateEdit = (EditText) findViewById(R.id.date_edit);
         timeEdit = (EditText) findViewById(R.id.time_edit);
         amountEdit = (EditText) findViewById(R.id.amount_edit);
-        updateBtn = (Button) findViewById(R.id.update_button);
-        cancelBtn = (Button) findViewById(R.id.cancel_button);
-        setCurrentTimeBtn = (Button) findViewById(R.id.set_current_time);
-        updateBtn.setOnClickListener(this);
-        cancelBtn.setOnClickListener(this);
-        setCurrentTimeBtn.setOnClickListener(this);
 
         dateEdit.setOnFocusChangeListener(focusChangeListener);
         timeEdit.setOnFocusChangeListener(focusChangeListener);
@@ -71,13 +61,31 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
         c.setTimeInMillis(date);
 
         int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
+        int month = c.get(Calendar.MONTH) + 1;
         int day = c.get(Calendar.DAY_OF_MONTH);
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
 
-        dateEdit.setText(day + "-" + (++month) + "-" + year);
-        timeEdit.setText(hour + ":" + minute);
+        String dateStr;
+        String time;
+
+        if (minute < 10){
+            time = hour + ":" + "0" + minute;
+        }
+        else{
+            time = hour + ":" + minute;
+        }
+
+        if (month < 10){
+            dateStr = day + "-" + "0" + month + "-" + year;
+        }
+        else{
+            dateStr = day + "-" + month + "-" + year;
+        }
+
+        dateEdit.setText(dateStr);
+        timeEdit.setText(time);
+
         amountEdit.setText(String.valueOf(amount));
         dbHelper = new DBHelper(this);
     }
@@ -115,7 +123,10 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
         try{
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
             date = dateFormat.parse(dateEdit.getText().toString() +" " + timeEdit.getText().toString());
-        }catch(ParseException pe){}
+        }
+        catch(ParseException pe){
+            Log.d("APP_ERROR", "Can't parse a date" + dateEdit.getText().toString() + " " + timeEdit.getText().toString());
+        }
         calendar.setTime(date);
 
         cv.put("amount", Integer.parseInt(amountEdit.getText().toString()));
@@ -138,13 +149,30 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
         Calendar c = GregorianCalendar.getInstance();
 
         int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
+        int month = c.get(Calendar.MONTH) + 1;
         int day = c.get(Calendar.DAY_OF_MONTH);
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
 
-        dateEdit.setText(day + "-" + (++month) + "-" + year);
-        timeEdit.setText(hour + ":" + minute);
+        String date;
+        String time;
+
+        if (minute < 10){
+            time = hour + ":" + "0" + minute;
+        }
+        else{
+            time = hour + ":" + minute;
+        }
+
+        if (month < 10){
+            date = day + "-" + "0" + month + "-" + year;
+        }
+        else{
+            date = day + "-" + month + "-" + year;
+        }
+
+        dateEdit.setText(date);
+        timeEdit.setText(time);
     }
 
     private View.OnFocusChangeListener focusChangeListener = new View.OnFocusChangeListener() {
@@ -165,18 +193,18 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
                     break;
                 }
             }
-        };
+        }
     };
 
     public void showTimePickerDialog() {
         DialogFragment newFragment = new TimePickerFragment();
         newFragment.show(getFragmentManager(), "timePicker");
-    };
+    }
 
     public void showDatePickerDialog() {
         DialogFragment newFragment = new DatePickerFragment();
         newFragment.show(getFragmentManager(), "datePicker");
-    };
+    }
 
     public class TimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
@@ -193,8 +221,15 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
                     DateFormat.is24HourFormat(getActivity()));
         }
 
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            timeEdit.setText(hourOfDay + ":" + minute);
+        public void onTimeSet(TimePicker view, int hour, int minute) {
+            String time;
+            if (minute < 10){
+                time = hour + ":" + "0" + minute;
+            }
+            else{
+                time = hour + ":" + minute;
+            }
+            timeEdit.setText(time);
         }
     }
 
@@ -214,7 +249,14 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
         }
 
         public void onDateSet(DatePicker view, int year, int month, int day) {
-            dateEdit.setText(day + "-" + (++month) + "-" + year);
+            String date;
+            if (month < 10){
+                date = day + "-" + "0" + (++month) + "-" + year;
+            }
+            else{
+                date = day + "-" + (++month) + "-" + year;
+            }
+            dateEdit.setText(date);
         }
     }
 }

@@ -1,12 +1,10 @@
 package com.howmuchof.squirrels.android;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +29,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
 
-    public List<Squirrel> getDataFromDB(SQLiteDatabase db){
+    public List<Squirrel> getDataFromDB(){
+        SQLiteDatabase db = getWritableDatabase();
         List<Squirrel> list = new ArrayList<Squirrel>();
         Cursor c = db.query(TABLE_NAME, null, null, null, null, null, null);
         int idColIndex = c.getColumnIndex("id");
@@ -55,5 +54,13 @@ public class DBHelper extends SQLiteOpenHelper {
         for (int id: rowList){
             db.delete(TABLE_NAME, "id = " + id, null);
         }
+    }
+
+    public int getRowCount(){
+        SQLiteDatabase db = getWritableDatabase();
+        String countQuery = "SELECT * FROM " + TABLE_NAME;
+        Cursor cursor = db.rawQuery(countQuery, null);
+        int count = cursor.getCount();
+        return count;
     }
 }

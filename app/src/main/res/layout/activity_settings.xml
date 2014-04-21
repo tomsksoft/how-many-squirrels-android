@@ -19,6 +19,7 @@
         android:text="@string/settingsPage_ApplyButton"
         android:id="@+id/applyBtn"
         android:layout_below="@+id/objEditText"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:onClick="onClick"/>
 
 </RelativeLayout>

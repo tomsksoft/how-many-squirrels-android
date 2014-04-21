@@ -13,18 +13,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/add"
-            android:id="@+id/add_line"
+            android:id="@+id/add_line_btn"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:layout_alignParentStart="true"
+            android:onClick="onClick"/>
 
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/delete"
             android:id="@+id/delete_btn"
+            android:onClick="onClick"
             android:layout_alignParentTop="true"
-            android:layout_toRightOf="@+id/add_line" />
+            android:layout_toRightOf="@+id/add_line_btn" />
 
         <Button
             android:layout_width="wrap_content"
@@ -33,7 +35,8 @@
             android:id="@+id/ok_btn"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
-            android:visibility="invisible"/>
+            android:visibility="invisible"
+            android:onClick="onClick"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -42,8 +45,8 @@
             android:id="@+id/cancel_btn"
             android:visibility="invisible"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/ok_btn" />
-
+            android:layout_toLeftOf="@+id/ok_btn"
+            android:onClick="onClick"/>
     </RelativeLayout >
 
     <ListView

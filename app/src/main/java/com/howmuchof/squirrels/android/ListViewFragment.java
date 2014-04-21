@@ -1,5 +1,6 @@
 package com.howmuchof.squirrels.android;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.database.Cursor;
@@ -14,7 +15,6 @@ import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
         View view = inflater.inflate(R.layout.listview_fragment, container, false);
-        addBtn = (Button) view.findViewById(R.id.add_line);
+        addBtn = (Button) view.findViewById(R.id.add_line_btn);
         addBtn.setOnClickListener(this);
         deleteBtn = (Button) view.findViewById(R.id.delete_btn);
         deleteBtn.setOnClickListener(this);
@@ -64,7 +64,7 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onClick(View view) {
         switch (view.getId()){
-            case R.id.add_line:{
+            case R.id.add_line_btn:{
                 Intent intent = new Intent(getActivity(), AddDataActivity.class);
                 startActivityForResult(intent, REQUEST_CODE_ADD);
                 break;
@@ -86,7 +86,7 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == getActivity().RESULT_OK) {
+        if (resultCode == Activity.RESULT_OK) {
             fillListView();
         }
     }
@@ -94,9 +94,9 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
     private void fillListView(){
         ArrayList<HashMap<String, String>> items = new ArrayList<HashMap<String, String>>();
         Calendar calendar = new GregorianCalendar();
-        String time = "";
-        String date = "";
-        objList = dbHelper.getDataFromDB(dbHelper.getWritableDatabase());
+        String time;
+        String date;
+        objList = dbHelper.getDataFromDB();
 
         for (Squirrel s: objList){
             HashMap<String, String> map = new HashMap<String, String>();
@@ -118,7 +118,7 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
 
         listView.setAdapter(adapter);
 
-    };
+    }
 
     void listViewActions(View view){
         listView = (ListView) view.findViewById(R.id.listView);

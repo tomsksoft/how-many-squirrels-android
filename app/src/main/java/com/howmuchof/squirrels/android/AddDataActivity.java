@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -33,6 +34,7 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
     EditText timeEdit;
     EditText amountEdit;
     Button minimizeBtn;
+    Button runGraphViewBtn;
     RadioButton selectTimeRb;
     RadioButton currentTimeRb;
     DBHelper dbHelper;
@@ -44,7 +46,8 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
         dateEdit = (EditText) findViewById(R.id.date_edit);
         timeEdit = (EditText) findViewById(R.id.time_edit);
         amountEdit = (EditText) findViewById(R.id.amount_edit);
-        minimizeBtn = (Button) findViewById(R.id.add_line);
+        minimizeBtn = (Button) findViewById(R.id.add_and_minimize);
+        runGraphViewBtn = (Button) findViewById(R.id.add_and_go_to_graph_view);
         selectTimeRb = (RadioButton) findViewById(R.id.select_time);
         currentTimeRb = (RadioButton) findViewById(R.id.current_time);
 
@@ -53,25 +56,44 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
         dateEdit.setOnFocusChangeListener(focusChangeListener);
         timeEdit.setOnFocusChangeListener(focusChangeListener);
         minimizeBtn.setOnClickListener(this);
+        runGraphViewBtn.setOnClickListener(this);
 
         final Calendar c = GregorianCalendar.getInstance();
         int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
+        int month = c.get(Calendar.MONTH) + 1;
         int day = c.get(Calendar.DAY_OF_MONTH);
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
+        String date;
+        String time;
 
-        dateEdit.setText(day + "-" + (++month) + "-" + year);
-        timeEdit.setText(hour + ":" + minute);
+        if (minute < 10){
+            time = hour + ":" + "0" + minute;
+        }
+        else{
+            time = hour + ":" + minute;
+        }
 
+        if (month < 10){
+            date = day + "-" + "0" + month + "-" + year;
+        }
+        else{
+            date = day + "-" + month + "-" + year;
+        }
+
+        dateEdit.setText(date);
+        timeEdit.setText(time);
         dbHelper = new DBHelper(this);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()){
-            case R.id.add_line:{
+            case R.id.add_and_minimize:{
                 createDBLine();
+                break;
+            }
+            case R.id.add_and_go_to_graph_view:{
                 break;
             }
             case R.id.current_time: {
@@ -98,7 +120,10 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
         try{
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
             date = dateFormat.parse(dateEdit.getText().toString() +" " + timeEdit.getText().toString());
-        }catch(ParseException pe){}
+        }
+        catch(ParseException pe){
+            Log.d("APP_ERROR", "Can't parse a date" + dateEdit.getText().toString() +" " + timeEdit.getText().toString());
+        }
         calendar.setTime(date);
 
         cv.put("amount", Integer.parseInt(amountEdit.getText().toString()));
@@ -131,18 +156,18 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
                     break;
                 }
             }
-        };
+        }
     };
 
     public void showTimePickerDialog() {
         DialogFragment newFragment = new TimePickerFragment();
         newFragment.show(getFragmentManager(), "timePicker");
-    };
+    }
 
     public void showDatePickerDialog() {
         DialogFragment newFragment = new DatePickerFragment();
         newFragment.show(getFragmentManager(), "datePicker");
-    };
+    }
 
     public class TimePickerFragment extends DialogFragment
             implements TimePickerDialog.OnTimeSetListener {
@@ -159,8 +184,15 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
                     DateFormat.is24HourFormat(getActivity()));
         }
 
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-            timeEdit.setText(hourOfDay + ":" + minute);
+        public void onTimeSet(TimePicker view, int hour, int minute) {
+            String time;
+            if (minute < 10){
+                time = hour + ":" + "0" + minute;
+            }
+            else{
+                time = hour + ":" + minute;
+            }
+            timeEdit.setText(time);
         }
     }
 
@@ -180,7 +212,14 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
         }
 
         public void onDateSet(DatePicker view, int year, int month, int day) {
-            dateEdit.setText(day + "-" + (++month) + "-" + year);
+            String date;
+            if (month < 10){
+                date = day + "-" + "0" + (++month) + "-" + year;
+            }
+            else{
+                date = day + "-" + (++month) + "-" + year;
+            }
+            dateEdit.setText(date);
         }
     }
 }

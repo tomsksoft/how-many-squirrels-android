@@ -1,8 +1,8 @@
 package com.howmuchof.squirrels.android;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -34,7 +34,8 @@ public class MainFragmentActivity extends Fragment implements View.OnClickListen
         graphViewBtn.setOnClickListener(this);
         settingsBtn.setOnClickListener(this);
 
-        SharedPreferences sPref = getActivity().getSharedPreferences("HowMuchOfShPref", getActivity().MODE_PRIVATE);
+
+        SharedPreferences sPref = getActivity().getSharedPreferences("HowMuchOfShPref", Activity.MODE_PRIVATE);
         String objName = sPref.getString("object_name", "");
         if (objName.length() != 0) {
             settingsBtn.setVisibility(View.INVISIBLE);

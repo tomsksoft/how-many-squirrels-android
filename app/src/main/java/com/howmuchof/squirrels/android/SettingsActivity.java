@@ -3,14 +3,12 @@ package com.howmuchof.squirrels.android;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -23,13 +21,11 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
     final static String SHARED_PREF_OBJECT_FIELD_NAME = "object_name";
 
     EditText objNameEditText;
-    Button applyBtn;
     DBHelper dbHelper;
     SharedPreferences sPref;
     SharedPreferences.Editor shEditor;
     String currentObjectName = "";
     AlertDialog.Builder ad;
-    Context context;
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,20 +35,17 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
             actionBar.show();
         }
         objNameEditText = (EditText) findViewById(R.id.objEditText);
-        applyBtn = (Button) findViewById(R.id.applyBtn);
-        applyBtn.setOnClickListener(this);
-        context = this;
-        sPref = context.getSharedPreferences(SHAREDPREFNAME, Activity.MODE_PRIVATE);
+        sPref = this.getSharedPreferences(SHAREDPREFNAME, Activity.MODE_PRIVATE);
         shEditor = sPref.edit();
-        dbHelper = new DBHelper(context);
+        dbHelper = new DBHelper(this);
 
         getActionBar().setDisplayHomeAsUpEnabled(true);
         createConfirmDialog();
-        initObjectname();
+        initObjectName();
     }
 
     protected void createConfirmDialog(){
-        ad = new AlertDialog.Builder(context);
+        ad = new AlertDialog.Builder(this);
         ad.setTitle(R.string.settingsPage_ConfirmAction);
         ad.setMessage(R.string.settingsPage_WarningCleanData);
         ad.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -66,7 +59,7 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
             }
         });
     }
-    private void initObjectname(){
+    private void initObjectName(){
         currentObjectName = getCountedObjectName();
         if (currentObjectName.length() != 0) {
             objNameEditText.setText(currentObjectName);
@@ -86,14 +79,16 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
     private void setObjectName(){
         String objectName = objNameEditText.getText().toString().trim();
         if (objectName.length() != 0) {
-            if (currentObjectName.length() != 0)
+            if (dbHelper.getRowCount() != 0) {
                 ad.show();
-            else
+            }
+            else {
                 setCountedObjectName(objectName);
+            }
             currentObjectName = objectName;
         }
         else
-            Toast.makeText(context, R.string.settingsPage_EmptyStr, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.settingsPage_EmptyStr, Toast.LENGTH_LONG).show();
     }
 
     protected String getCountedObjectName(){
@@ -105,7 +100,7 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
         db.delete("objects", null, null);
         shEditor.putString(SHARED_PREF_OBJECT_FIELD_NAME, str);
         shEditor.commit();
-        Toast.makeText(context,R.string.settingsPage_TextIsSet, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this,R.string.settingsPage_TextIsSet, Toast.LENGTH_SHORT).show();
     }
 
     @Override

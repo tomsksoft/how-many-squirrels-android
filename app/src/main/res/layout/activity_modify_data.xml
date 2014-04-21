@@ -29,7 +29,8 @@
         android:layout_height="wrap_content"
         android:text="@string/dataPage_setCurrentTime"
         android:id="@+id/set_current_time"
-        android:layout_gravity="center_horizontal" />
+        android:layout_gravity="center_horizontal"
+        android:onClick="onClick"/>
 
     <EditText
         android:id="@+id/amount_edit"
@@ -38,7 +39,7 @@
         android:layout_height="wrap_content"
         android:hint="@string/dataPage_inputHint"
         android:layout_gravity="center_horizontal"
-        android:inputType="number">
+        android:inputType="phone">
     </EditText>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -54,13 +55,15 @@
             android:layout_height="wrap_content"
             android:text="@string/dataPage_cancel"
             android:id="@+id/cancel_button"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:onClick="onClick"/>
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/dataPage_updateData"
             android:id="@+id/update_button"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:onClick="onClick"/>
 
     </LinearLayout>
 </LinearLayout>
