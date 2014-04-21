@@ -4,14 +4,17 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 
 public class MainActivity extends Activity {
-    ActionBar.Tab mainTab, settingsTab, graphViewTab, listViewTab;
+    ActionBar.Tab mainTab, graphViewTab, listViewTab;
     Fragment mainFragment = new MainFragmentActivity();
-    Fragment settingsFragment = new SettingsTabActivity();
     Fragment listViewFragment = new ListViewFragment();
-    //Fragment graphViewFragment = new ListViewFragment();
+    Fragment graphViewFragment = new GraphViewFragment();
+
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,22 +24,35 @@ public class MainActivity extends Activity {
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
         mainTab = actionBar.newTab().setText(R.string.mainTabName);
-        settingsTab = actionBar.newTab().setText(R.string.settingsTabName);
+        graphViewTab = actionBar.newTab().setText(R.string.graphViewTabName);
         listViewTab = actionBar.newTab().setText(R.string.listViewTabName);
 
-        mainTab.setTabListener(new MyTabListener(mainFragment));
-        settingsTab.setTabListener(new MyTabListener(settingsFragment));
-        listViewTab.setTabListener(new MyTabListener(listViewFragment));
+        mainTab.setTabListener(new TabListener(mainFragment));
+        graphViewTab.setTabListener(new TabListener(graphViewFragment));
+        listViewTab.setTabListener(new TabListener(listViewFragment));
 
-        actionBar.addTab(settingsTab);
         actionBar.addTab(mainTab);
         actionBar.addTab(listViewTab);
+        actionBar.addTab(graphViewTab);
     }
 
-    public class MyTabListener implements ActionBar.TabListener {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0,1,0,R.string.settingsPageTitle);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent = new Intent(this, SettingsActivity.class);
+        startActivity(intent);
+        return true;
+    }
+
+    public class TabListener implements ActionBar.TabListener {
         Fragment fragment;
 
-        public MyTabListener(Fragment fragment) {
+        public TabListener(Fragment fragment) {
            this.fragment = fragment;
         }
 

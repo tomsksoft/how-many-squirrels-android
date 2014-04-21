@@ -126,11 +126,11 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
             dbHelper.close();
             Intent intent = new Intent();
             setResult(RESULT_OK, intent);
-            Toast.makeText(this,R.string.listViewPage_successUpdateLine, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,R.string.dataPage_successUpdateLine, Toast.LENGTH_SHORT).show();
             finish();
         }
         else
-            Toast.makeText(this, R.string.listViewPage_failUpdateLine, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.dataPage_failUpdateLine, Toast.LENGTH_SHORT).show();
 
     }
 

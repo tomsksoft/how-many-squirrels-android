@@ -26,6 +26,10 @@
             android:label="@string/dataPage_modifyPageTitle"
             android:theme="@android:style/Theme.Dialog">
         </activity>
+        <activity
+            android:name="com.howmuchof.squirrels.android.SettingsActivity"
+            android:label="@string/settingsPageTitle">
+        </activity>
     </application>
 
 </manifest>

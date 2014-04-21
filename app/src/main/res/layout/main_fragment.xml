@@ -7,9 +7,27 @@ android:layout_height="match_parent" >
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/settingsTabName"
+        android:text="@string/indexPage_goToListview"
+        android:id="@+id/go_to_list_view_activity"
+        android:layout_marginTop="45dp"
+        android:layout_alignEnd="@+id/go_to_graph_view_activity"
+        android:layout_alignStart="@+id/go_to_graph_view_activity" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/indexPage_goToGraphView"
+        android:id="@+id/go_to_graph_view_activity"
+        android:layout_below="@+id/go_to_list_view_activity"
+        android:layout_marginTop="15dp"
+        android:layout_alignEnd="@+id/go_to_settings"
+        android:layout_alignStart="@+id/go_to_settings" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/indexPage_goToSettings"
         android:id="@+id/go_to_settings"
+        android:layout_below="@+id/go_to_graph_view_activity"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="61dp" />
+        android:layout_marginTop="15dp" />
 
 </RelativeLayout>

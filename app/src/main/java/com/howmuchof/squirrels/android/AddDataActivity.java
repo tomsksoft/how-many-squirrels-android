@@ -106,7 +106,7 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
 
         if (db.insert("objects", null, cv) != -1){
             dbHelper.close();
-            Toast.makeText(this,R.string.listViewPage_successAddLine, Toast.LENGTH_LONG).show();
+            Toast.makeText(this,R.string.dataPage_successAddLine, Toast.LENGTH_LONG).show();
             Intent intent = new Intent();
             setResult(RESULT_OK, intent);
             finish();

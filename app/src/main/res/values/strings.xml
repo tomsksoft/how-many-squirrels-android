@@ -3,8 +3,9 @@
 
     <string name="app_name">Counting Stars</string>
     <string name="mainTabName">Главная</string>
-    <string name="settingsTabName">Настройки</string>
+    <string name="settingsPageTitle">Настройки</string>
     <string name="listViewTabName">Данные</string>
+    <string name="graphViewTabName">Графики</string>
     <string name="settingsPage_ApplyButton">Применить</string>
     <string name="settingsPage_InputTextHint">Название измеряемых данных</string>
     <string name="settingsPage_WarningCleanData">Все данные будут удалены. Продолжить?</string>
@@ -26,7 +27,10 @@
     <string name="dataPage_cancel">Отменить изменения</string>
     <string name="dataPage_setCurrentTime">Установить текущее время</string>
     <string name="dataPage_errInputAmount">Пожалуйста, введите количество</string>
-    <string name="listViewPage_successAddLine">Строка добавлена!</string>
-    <string name="listViewPage_successUpdateLine">Строка изменена!</string>
-    <string name="listViewPage_failUpdateLine">Извините, строка не была обновлена</string>
+    <string name="dataPage_successAddLine">Строка добавлена!</string>
+    <string name="dataPage_successUpdateLine">Строка изменена!</string>
+    <string name="dataPage_failUpdateLine">Извините, строка не была обновлена</string>
+    <string name="indexPage_goToListview">Данные</string>
+    <string name="indexPage_goToGraphView">Графики</string>
+    <string name="indexPage_goToSettings">Настройки</string>
 </resources>
