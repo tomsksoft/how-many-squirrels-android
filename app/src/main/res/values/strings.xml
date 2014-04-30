@@ -33,4 +33,5 @@
     <string name="indexPage_goToListview">Данные</string>
     <string name="indexPage_goToGraphView">Графики</string>
     <string name="indexPage_goToSettings">Настройки</string>
+    <string name="graphViewPage_notEnoughData">Недостаточно данных для отображения графика</string>
 </resources>

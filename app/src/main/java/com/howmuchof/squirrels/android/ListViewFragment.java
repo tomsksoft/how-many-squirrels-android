@@ -3,8 +3,6 @@ package com.howmuchof.squirrels.android;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -128,8 +126,15 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
                 Squirrel squirrel = objList.get(position);
 
                 if (deleteMode){
-                    view.setBackgroundColor(Color.parseColor("#FF8282"));
-                    itemsToRemove.add(squirrel.getID());
+                    int index = itemsToRemove.indexOf(squirrel.getID());
+                    if (index != -1){
+                        view.setBackgroundColor(Color.WHITE);
+                        itemsToRemove.remove(index);
+                    }
+                    else{
+                        view.setBackgroundColor(Color.parseColor("#FF8282"));
+                        itemsToRemove.add(squirrel.getID());
+                    }
                 }
                 else{
                     Intent intent = new Intent(getActivity(), ModifyDataActivity.class);

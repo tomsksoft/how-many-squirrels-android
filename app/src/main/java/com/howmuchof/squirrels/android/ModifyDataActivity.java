@@ -28,6 +28,7 @@ import java.util.GregorianCalendar;
  */
 public class ModifyDataActivity extends Activity implements View.OnClickListener{
 
+    private final static SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
     EditText dateEdit;
     EditText timeEdit;
     EditText amountEdit;
@@ -212,7 +213,16 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Use the current time as the default values for the picker
-            final Calendar c = GregorianCalendar.getInstance();
+            Calendar c = new GregorianCalendar();
+            Date date = new Date();
+            try{
+                date = dateFormat.parse(dateEdit.getText().toString() +" " + timeEdit.getText().toString());
+            }
+            catch(ParseException pe){
+                Log.d("APP_ERROR", "Can't parse a date" + dateEdit.getText().toString() + " " + timeEdit.getText().toString());
+            }
+            c.setTime(date);
+
             int hour = c.get(Calendar.HOUR_OF_DAY);
             int minute = c.get(Calendar.MINUTE);
 
@@ -239,7 +249,16 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Use the current date as the default date in the picker
-            final Calendar c = GregorianCalendar.getInstance();
+            Calendar c = new GregorianCalendar();
+            Date date = new Date();
+            try{
+                date = dateFormat.parse(dateEdit.getText().toString() +" " + timeEdit.getText().toString());
+            }
+            catch(ParseException pe){
+                Log.d("APP_ERROR", "Can't parse a date" + dateEdit.getText().toString() + " " + timeEdit.getText().toString());
+            }
+            c.setTime(date);
+
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);

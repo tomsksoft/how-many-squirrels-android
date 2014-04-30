@@ -47,8 +47,40 @@ public class DBHelper extends SQLiteOpenHelper {
             s.setDate(c.getLong(dateColIndex));
             list.add(s);
         } while (c.moveToNext());
+        c.close();
         return list;
-    };
+    }
+
+    public List<Squirrel> getDataFromDB(long startDate, long endDate){
+        SQLiteDatabase db = getWritableDatabase();
+        String countQuery;
+        List<Squirrel> list = new ArrayList<Squirrel>();
+        if (endDate > 0) {
+            countQuery = "SELECT * FROM " + TABLE_NAME + " WHERE date>="+startDate
+                    + " AND date<=" + endDate + " ORDER BY date";
+        }
+        else {
+            countQuery = "SELECT * FROM " + TABLE_NAME + " WHERE date>="+startDate
+                    + " ORDER BY date";
+        }
+        Cursor cursor = db.rawQuery(countQuery, null);
+        int idColIndex = cursor.getColumnIndex("id");
+        int amountColIndex = cursor.getColumnIndex("amount");
+        int dateColIndex = cursor.getColumnIndex("date");
+
+        if (!cursor.moveToFirst())
+            return list;
+
+        do{
+            Squirrel s = new Squirrel();
+            s.setID(cursor.getInt(idColIndex));
+            s.setAmount(cursor.getInt(amountColIndex));
+            s.setDate(cursor.getLong(dateColIndex));
+            list.add(s);
+        } while (cursor.moveToNext());
+        cursor.close();
+        return list;
+    }
 
     public void deleteRows(SQLiteDatabase db, List<Integer> rowList){
         for (int id: rowList){
@@ -61,6 +93,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String countQuery = "SELECT * FROM " + TABLE_NAME;
         Cursor cursor = db.rawQuery(countQuery, null);
         int count = cursor.getCount();
+        cursor.close();
         return count;
     }
 }
