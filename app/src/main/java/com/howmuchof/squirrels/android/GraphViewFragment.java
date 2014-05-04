@@ -63,11 +63,8 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
         @Override
         public void draw(Canvas canvas) {
             Log.d("DRAWING", "Got inside of draw method");
+            graphManager.getGraphProperties().setXFormat(GraphProperties.HOR_VALUES_DATE_FORMAT);
 
-            Paint paint = new Paint();
-            rect = new Rect();
-            paint.setColor(Color.RED);
-            graphManager.setXFormat(GraphManager.HOR_VALUES_DATE_FORMAT);
             graphManager.draw(canvas, getView());
         }
 
@@ -80,5 +77,11 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
         @Override
         public void setColorFilter(ColorFilter cf) {}
 
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        view.invalidate();
+        super.finalize();
     }
 }

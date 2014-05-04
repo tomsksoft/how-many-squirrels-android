@@ -7,9 +7,11 @@
     android:weightSum="1">p
 
     <ImageView
-        android:layout_width="800dp"
+        android:layout_width="match_parent"
         android:layout_height="250dp"
         android:id="@+id/imageView"
-        android:layout_marginTop="50dp" />
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp" />
 
 </LinearLayout>
