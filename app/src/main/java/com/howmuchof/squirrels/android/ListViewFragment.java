@@ -6,6 +6,8 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -18,8 +20,10 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
@@ -125,20 +129,22 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
 
     private void fillListView(){
         ArrayList<HashMap<String, String>> items = new ArrayList<HashMap<String, String>>();
-        Calendar calendar = new GregorianCalendar();
+//        Calendar calendar = new GregorianCalendar();
         String date;
         objList = dbHelper.getDataFromDBSortedByDate();
 
         for (Squirrel s: objList) {
             HashMap<String, String> map = new HashMap<String, String>();
             map.put("amount", String.valueOf(s.getAmount()));
-            calendar.setTimeInMillis(s.getDate());
+//            calendar.setTimeInMillis(s.getDate());
+/*
             date = getFormattedDayValue(calendar.get(Calendar.DAY_OF_MONTH)) + "-" +
                     getFormattedMonthValue(calendar.get(Calendar.MONTH)) + "-" +
                     calendar.get(Calendar.YEAR) + " " +
                     calendar.get(Calendar.HOUR_OF_DAY) + ":" +
                     getFormattedMinuteValue(calendar.get(Calendar.MINUTE));
-
+*/
+            date = formatDate(new Date(s.getDate()));
             map.put("date", date);
             items.add(map);
         }
@@ -247,5 +253,31 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
             backgColor = a.data;
         }
     }
-}
 
+    public String formatDate(Date date){
+        String result = "";
+        java.text.DateFormat dateFormat;
+
+        if (date != null){
+            try {
+                String format = Settings.System.getString(getActivity().getContentResolver(), Settings.System.DATE_FORMAT);
+                if (TextUtils.isEmpty(format)) {
+                    dateFormat = android.text.format.DateFormat.getDateFormat(getActivity());
+                } else {
+                    dateFormat = new SimpleDateFormat(format);
+                }
+                result = dateFormat.format(date);
+
+                dateFormat = android.text.format.DateFormat.getTimeFormat(getActivity());
+                result += " " + dateFormat.format(date);
+
+            }
+            catch (Exception e){
+                Log.d("CODE_ERROR","Couldn't resolve date with parameters: Date '" + date + "'");
+            }
+        }
+
+        return result;
+    }
+
+}

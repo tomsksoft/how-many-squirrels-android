@@ -6,11 +6,12 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.text.format.DateFormat;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -20,7 +21,7 @@ import android.widget.RadioButton;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import java.text.ParseException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -31,8 +32,8 @@ import java.util.GregorianCalendar;
  */
 public class AddDataActivity extends Activity implements View.OnClickListener{
 
-    static final int DATE_PICKER_ID = 0;
-    static final int TIME_PICKER_ID = 1;
+    static final int DATE_PICKER = 0;
+    static final int TIME_PICKER = 1;
 
     EditText dateEdit;
     EditText timeEdit;
@@ -43,12 +44,14 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
     RadioButton currentTimeRb;
     DBHelper dbHelper;
     boolean pickerIsActive;
-    //SimpleDateFormat dateFormat;
+    Context context;
+    Date date;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_data);
+        context = this;
         dateEdit = (EditText) findViewById(R.id.date_edit);
         timeEdit = (EditText) findViewById(R.id.time_edit);
         amountEdit = (EditText) findViewById(R.id.amount_edit);
@@ -64,19 +67,10 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
         minimizeBtn.setOnClickListener(this);
         runGraphViewBtn.setOnClickListener(this);
 
-        /*SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
-        String dateLocalizedFormatPattern = simpleDateFormat.toLocalizedPattern();
-        dateFormat = new SimpleDateFormat(dateLocalizedFormatPattern);*/
+        date = GregorianCalendar.getInstance().getTime();
+        dateEdit.setText(formatDate(date, DATE_PICKER));
+        timeEdit.setText(formatDate(date, TIME_PICKER));
 
-        final Calendar c = GregorianCalendar.getInstance();
-        int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH);
-        int day = c.get(Calendar.DAY_OF_MONTH);
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-        int minute = c.get(Calendar.MINUTE);
-
-        dateEdit.setText(getFormattedDayValue(day) + "-" + getFormattedMonthValue(month) + "-" + year);
-        timeEdit.setText(hour + ":" + getFormattedMinuteValue(minute));
         dbHelper = new DBHelper(this);
     }
 
@@ -111,19 +105,8 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
         }
         ContentValues cv = new ContentValues();
 
-        Calendar calendar = new GregorianCalendar();
-        Date date = new Date();
-        try{
-            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-            date = dateFormat.parse(dateEdit.getText().toString() +" " + timeEdit.getText().toString());
-        }
-        catch(ParseException pe){
-            Log.d("APP_ERROR", "Can't parse a date" + dateEdit.getText().toString() +" " + timeEdit.getText().toString());
-        }
-        calendar.setTime(date);
-
         cv.put("amount", Integer.parseInt(amountEdit.getText().toString()));
-        cv.put("date", calendar.getTimeInMillis());
+        cv.put("date", date.getTime());
 
         return dbHelper.getWritableDatabase().insert("objects", null, cv);
     }
@@ -162,7 +145,7 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
                 case R.id.date_edit:{
                     if (gainFocus) {
                         if (!pickerIsActive) {
-                            showPicker(DATE_PICKER_ID);
+                            showPicker(DATE_PICKER);
                         }
                         view.clearFocus();
                     }
@@ -171,7 +154,7 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
                 case R.id.time_edit:{
                     if (gainFocus) {
                         if (!pickerIsActive){
-                            showPicker(TIME_PICKER_ID);
+                            showPicker(TIME_PICKER);
                         }
                         view.clearFocus();
                     }
@@ -184,11 +167,11 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
     public void showPicker(int pickerID) {
         pickerIsActive = true;
 
-        if (pickerID == TIME_PICKER_ID){
+        if (pickerID == TIME_PICKER){
             DialogFragment newFragment = new TimePickerFragment();
             newFragment.show(getFragmentManager(), "timePicker");
         }
-        else if (pickerID == DATE_PICKER_ID){
+        else if (pickerID == DATE_PICKER){
             DialogFragment newFragment = new DatePickerFragment();
             newFragment.show(getFragmentManager(), "datePicker");
         }
@@ -200,17 +183,24 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Use the current time as the default values for the picker
-            final Calendar c = GregorianCalendar.getInstance();
+            final Calendar c = new GregorianCalendar();
+            c.setTime(date);
             int hour = c.get(Calendar.HOUR_OF_DAY);
             int minute = c.get(Calendar.MINUTE);
 
             // Create a new instance of TimePickerDialog and return it
             return new TimePickerDialog(getActivity(), this, hour, minute,
-                    DateFormat.is24HourFormat(getActivity()));
+                    android.text.format.DateFormat.is24HourFormat(context));
         }
 
         public void onTimeSet(TimePicker view, int hour, int minute) {
-            timeEdit.setText(hour + ":" + getFormattedMinuteValue(minute));
+            Calendar c = new GregorianCalendar();
+            c.setTime(date);
+            c.set(Calendar.HOUR_OF_DAY, hour);
+            c.set(Calendar.MINUTE,minute);
+            date = c.getTime();
+
+            timeEdit.setText(formatDate(date, TIME_PICKER));
         }
 
         @Override
@@ -225,7 +215,8 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             // Use the current date as the default date in the picker
-            final Calendar c = GregorianCalendar.getInstance();
+            final Calendar c = new GregorianCalendar();
+            c.setTime(date);
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH);
             int day = c.get(Calendar.DAY_OF_MONTH);
@@ -235,7 +226,11 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
         }
 
         public void onDateSet(DatePicker view, int year, int month, int day) {
-            dateEdit.setText(getFormattedDayValue(day) + "-" + getFormattedMonthValue(month) + "-" + year);
+            Calendar c = new GregorianCalendar();
+            c.setTime(date);
+            c.set(year, month, day);
+            date = c.getTime();
+            dateEdit.setText(formatDate(date, DATE_PICKER));
         }
         @Override
         public void onDismiss(DialogInterface dialog){
@@ -243,33 +238,33 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
         }
     }
 
-    private String getFormattedMonthValue(int month){
-        month++;
-        if (month < 10) {
-            return "0" + month;
-        }
-        else {
-            return String.valueOf(month);
-        }
-    }
+    public String formatDate(Date date, int requestType){
+        String result = "";
+        DateFormat dateFormat;
 
-    private String getFormattedMinuteValue(int minute){
+        if (date != null){
+            try {
+                if (requestType == DATE_PICKER) {
 
-        if (minute < 10) {
-            return "0" + minute;
+                    String format = Settings.System.getString(context.getContentResolver(), Settings.System.DATE_FORMAT);
+                    if (TextUtils.isEmpty(format)) {
+                        dateFormat = android.text.format.DateFormat.getDateFormat(context);
+                    } else {
+                        dateFormat = new SimpleDateFormat(format);
+                    }
+                    result = dateFormat.format(date);
+                }
+                else if (requestType == TIME_PICKER) {
+                    dateFormat = android.text.format.DateFormat.getTimeFormat(context);
+                    result = " " + dateFormat.format(date);
+                }
+            }
+            catch (Exception e){
+                Log.d("CODE_ERROR","Couldn't resolve date with parameters: Date '" + date +
+                    "' and RequestType '" + requestType + "'");
+            }
         }
-        else {
-            return String.valueOf(minute);
-        }
-    }
 
-    private String getFormattedDayValue(int day){
-
-        if (day < 10) {
-            return "0" + day;
-        }
-        else {
-            return String.valueOf(day);
-        }
+        return result;
     }
 }
