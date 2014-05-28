@@ -47,8 +47,26 @@ public class MainActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent = new Intent(this, SettingsActivity.class);
-        startActivity(intent);
+        int tabNumber = 0;
+        ActionBar actionBar = this.getActionBar();
+        if (null != actionBar) {
+            tabNumber = actionBar.getSelectedTab().getPosition();
+        }
+        startActivityForResult(intent, tabNumber);
+        onResume();
         return true;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        ActionBar actionBar = this.getActionBar();
+        if (null != actionBar) {
+            //Yeah, bad solution, I know
+            actionBar.selectTab(actionBar.getTabAt(0));
+            actionBar.selectTab(actionBar.getTabAt(1));
+            actionBar.selectTab(actionBar.getTabAt(requestCode));
+            //
+        }
     }
 
     public class TabListener implements ActionBar.TabListener {

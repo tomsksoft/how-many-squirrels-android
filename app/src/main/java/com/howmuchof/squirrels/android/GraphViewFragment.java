@@ -30,15 +30,26 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
         view = inflater.inflate(R.layout.graph_view_fragment, container, false);
-
-        imageView = (ImageView) view.findViewById(R.id.imageView);
-        imageView.setImageDrawable(new GraphDrawable());
-
         dbHelper = new DBHelper(getActivity());
-        graphManager = new GraphManager();
-        initGraph();
-
+        if (checkDBData()){
+            imageView = (ImageView) view.findViewById(R.id.imageView);
+            imageView.setImageDrawable(new GraphDrawable());
+            graphManager = new GraphManager();
+            initGraph();
+        }
+        else {
+            Toast.makeText(getActivity(), R.string.graphViewPage_notEnoughData, Toast.LENGTH_LONG).show();
+        }
         return view;
+    }
+
+    private boolean checkDBData(){
+        if (dbHelper.getRowCount() >= 2){
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     private void initGraph(){
@@ -58,13 +69,10 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
 
     private class GraphDrawable extends Drawable {
 
-        Rect rect;
-
         @Override
         public void draw(Canvas canvas) {
             Log.d("DRAWING", "Got inside of draw method");
             graphManager.getGraphProperties().setXFormat(GraphProperties.HOR_VALUES_DATE_FORMAT);
-
             graphManager.draw(canvas, getView());
         }
 
@@ -77,11 +85,5 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
         @Override
         public void setColorFilter(ColorFilter cf) {}
 
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        view.invalidate();
-        super.finalize();
     }
 }

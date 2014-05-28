@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Counting Stars</string>
+    <string name="app_name">How many squirrels</string>
     <string name="mainTabName">Главная</string>
     <string name="settingsPageTitle">Настройки</string>
     <string name="listViewTabName">Данные</string>
@@ -30,6 +30,7 @@
     <string name="dataPage_successAddLine">Строка добавлена!</string>
     <string name="dataPage_successUpdateLine">Строка изменена!</string>
     <string name="dataPage_failUpdateLine">Извините, строка не была обновлена</string>
+    <string name="dataPage_failAddLine">Извините, строка не была добавлена</string>
     <string name="indexPage_goToListview">Данные</string>
     <string name="indexPage_goToGraphView">Графики</string>
     <string name="indexPage_goToSettings">Настройки</string>

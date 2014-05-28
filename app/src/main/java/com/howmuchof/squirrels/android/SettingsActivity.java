@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -30,10 +31,7 @@ public class SettingsActivity extends Activity implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        ActionBar actionBar = getActionBar();
-        if(actionBar != null) {
-            actionBar.show();
-        }
+
         objNameEditText = (EditText) findViewById(R.id.objEditText);
         sPref = this.getSharedPreferences(SHAREDPREFNAME, Activity.MODE_PRIVATE);
         shEditor = sPref.edit();

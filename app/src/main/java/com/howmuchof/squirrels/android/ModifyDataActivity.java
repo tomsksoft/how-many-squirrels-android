@@ -6,12 +6,14 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TimePicker;
@@ -28,6 +30,9 @@ import java.util.GregorianCalendar;
  */
 public class ModifyDataActivity extends Activity implements View.OnClickListener{
 
+    static final int DATE_PICKER_ID = 0;
+    static final int TIME_PICKER_ID = 1;
+
     private final static SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy HH:mm");
     EditText dateEdit;
     EditText timeEdit;
@@ -35,6 +40,7 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
 
     DBHelper dbHelper;
     int id;
+    boolean pickerIsActive;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,30 +68,13 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
         c.setTimeInMillis(date);
 
         int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH) + 1;
+        int month = c.get(Calendar.MONTH);
         int day = c.get(Calendar.DAY_OF_MONTH);
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
 
-        String dateStr;
-        String time;
-
-        if (minute < 10){
-            time = hour + ":" + "0" + minute;
-        }
-        else{
-            time = hour + ":" + minute;
-        }
-
-        if (month < 10){
-            dateStr = day + "-" + "0" + month + "-" + year;
-        }
-        else{
-            dateStr = day + "-" + month + "-" + year;
-        }
-
-        dateEdit.setText(dateStr);
-        timeEdit.setText(time);
+        dateEdit.setText(getFormattedDayValue(day) + "-" + getFormattedMonthValue(month) + "-" + year);
+        timeEdit.setText(hour + ":" + getFormattedMinuteValue(minute));
 
         amountEdit.setText(String.valueOf(amount));
         dbHelper = new DBHelper(this);
@@ -181,14 +170,18 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
             switch (view.getId()){
                 case R.id.date_edit:{
                     if (gainFocus) {
-                        showDatePickerDialog();
+                        if (!pickerIsActive) {
+                            showPicker(DATE_PICKER_ID);
+                        }
                         view.clearFocus();
                     }
                     break;
                 }
                 case R.id.time_edit:{
                     if (gainFocus) {
-                        showTimePickerDialog();
+                        if (!pickerIsActive){
+                            showPicker(TIME_PICKER_ID);
+                        }
                         view.clearFocus();
                     }
                     break;
@@ -197,14 +190,17 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
         }
     };
 
-    public void showTimePickerDialog() {
-        DialogFragment newFragment = new TimePickerFragment();
-        newFragment.show(getFragmentManager(), "timePicker");
-    }
+    public void showPicker(int pickerID) {
+        pickerIsActive = true;
 
-    public void showDatePickerDialog() {
-        DialogFragment newFragment = new DatePickerFragment();
-        newFragment.show(getFragmentManager(), "datePicker");
+        if (pickerID == TIME_PICKER_ID){
+            DialogFragment newFragment = new TimePickerFragment();
+            newFragment.show(getFragmentManager(), "timePicker");
+        }
+        else if (pickerID == DATE_PICKER_ID){
+            DialogFragment newFragment = new DatePickerFragment();
+            newFragment.show(getFragmentManager(), "datePicker");
+        }
     }
 
     public class TimePickerFragment extends DialogFragment
@@ -232,14 +228,12 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
         }
 
         public void onTimeSet(TimePicker view, int hour, int minute) {
-            String time;
-            if (minute < 10){
-                time = hour + ":" + "0" + minute;
-            }
-            else{
-                time = hour + ":" + minute;
-            }
-            timeEdit.setText(time);
+            timeEdit.setText(hour + ":" + getFormattedMinuteValue(minute));
+        }
+
+        @Override
+        public void onDismiss(DialogInterface dialog){
+            pickerIsActive = false;
         }
     }
 
@@ -268,14 +262,42 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
         }
 
         public void onDateSet(DatePicker view, int year, int month, int day) {
-            String date;
-            if (month < 10){
-                date = day + "-" + "0" + (++month) + "-" + year;
-            }
-            else{
-                date = day + "-" + (++month) + "-" + year;
-            }
-            dateEdit.setText(date);
+            dateEdit.setText(getFormattedDayValue(day) + "-" + getFormattedMonthValue(month) + "-" + year);
+        }
+
+        @Override
+        public void onDismiss(DialogInterface dialog){
+            pickerIsActive = false;
+        }
+    }
+
+    private String getFormattedMonthValue(int month){
+        month++;
+        if (month < 10) {
+            return "0" + month;
+        }
+        else {
+            return String.valueOf(month);
+        }
+    }
+
+    private String getFormattedMinuteValue(int minute){
+
+        if (minute < 10) {
+            return "0" + minute;
+        }
+        else {
+            return String.valueOf(minute);
+        }
+    }
+
+    private String getFormattedDayValue(int day){
+
+        if (day < 10) {
+            return "0" + day;
+        }
+        else {
+            return String.valueOf(day);
         }
     }
 }

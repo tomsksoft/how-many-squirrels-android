@@ -82,6 +82,31 @@ public class DBHelper extends SQLiteOpenHelper {
         return list;
     }
 
+    public List<Squirrel> getDataFromDBSortedByDate(){
+        SQLiteDatabase db = getWritableDatabase();
+        String countQuery;
+        List<Squirrel> list = new ArrayList<Squirrel>();
+
+            countQuery = "SELECT * FROM " + TABLE_NAME + " ORDER BY date DESC,id DESC";
+        Cursor cursor = db.rawQuery(countQuery, null);
+        int idColIndex = cursor.getColumnIndex("id");
+        int amountColIndex = cursor.getColumnIndex("amount");
+        int dateColIndex = cursor.getColumnIndex("date");
+
+        if (!cursor.moveToFirst())
+            return list;
+
+        do{
+            Squirrel s = new Squirrel();
+            s.setID(cursor.getInt(idColIndex));
+            s.setAmount(cursor.getInt(amountColIndex));
+            s.setDate(cursor.getLong(dateColIndex));
+            list.add(s);
+        } while (cursor.moveToNext());
+        cursor.close();
+        return list;
+    }
+
     public void deleteRows(SQLiteDatabase db, List<Integer> rowList){
         for (int id: rowList){
             db.delete(TABLE_NAME, "id = " + id, null);

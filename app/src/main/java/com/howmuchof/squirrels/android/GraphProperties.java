@@ -48,14 +48,14 @@ public class GraphProperties {
         bar3DPaint.setColor(Color.parseColor("#53DED5"));
         bar3DPaint.setStrokeWidth(5);
 
-        topBottomIndent = 50;
-        graphIndent = 10;
-        columnWidth = 105;
-        marginLeft = 90;
+        topBottomIndent = 90;
+        graphIndent = 15;
+        columnWidth = 145;
+        marginLeft = 100;
         marginColumnLeft = 40;
 
         horzLabelsPaint = new Paint();
-        horzLabelsPaint.setTextSize(25);
+        horzLabelsPaint.setTextSize(35);
         horzLabelsPaint.setTextAlign(Paint.Align.CENTER);
 
     }
@@ -161,7 +161,9 @@ public class GraphProperties {
     }
 
     public GraphLine getGraphBarCoordinates(double yValue, int curGraph){
-        int topY = height - (int)(((float)(yValue-minVertValue+1)/(float)(maxVertValue-minVertValue+1)) *(height - topBottomIndent*2));
+        //int topY = height - (int)(((float)(yValue-minVertValue+1)/(float)(maxVertValue-minVertValue+1)) *(height - topBottomIndent*2));
+        //int topY = height - topBottomIndent - (int)((height - topBottomIndent*2)*((yValue - minVertValue+1)/(maxVertValue - minVertValue))-topBottomIndent);
+        int topY = height - (int)((height - topBottomIndent*2)*((yValue - minVertValue+1)/(maxVertValue - minVertValue + 2))+topBottomIndent);
         int topX = curGraph * (columnWidth + graphIndent) + marginColumnLeft + marginLeft;
         int botY = height - topBottomIndent;
         int botX = topX + columnWidth;
@@ -172,7 +174,10 @@ public class GraphProperties {
     }
 
     public int getGridYPos(float value){
-        return height - (int)(((value-minVertValue+1)/(maxVertValue-minVertValue+1)) *(height-topBottomIndent*2));
+        //return height - (int)(((value-minVertValue+1)/(maxVertValue-minVertValue+1)) *(height-topBottomIndent*2));
+
+
+        return height - (int)((height - topBottomIndent*2)*((value - minVertValue+1)/(maxVertValue - minVertValue + 2))+topBottomIndent);
     }
 
     public int getGraphWidth(int graphAmount){

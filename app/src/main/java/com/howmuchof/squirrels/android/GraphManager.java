@@ -70,31 +70,30 @@ public class GraphManager {
         Log.d("DRAWING", "Max/Min values: " + gProps.getMaxVertValue() + " " + gProps.getMinVertValue());
         float value = (float)(gProps.getMaxVertValue() - gProps.getMinVertValue())/10;
         float lineValue = gProps.getMinVertValue();
+        int width = gProps.getGraphWidth(graphLines.size());//graphLines.size() * (gProps.getGraphIndent() + gProps.getColumnWidth());
 
-        while (lineValue < gProps.getMaxVertValue() + value) {
-            drawGridLine(canvas, lineValue);
-            lineValue += value;
+        while (lineValue <= gProps.getMaxVertValue() + value) {
+            drawGridLine(canvas, lineValue, width);
             drawVerticalLabel(canvas, lineValue);
+            lineValue += value;
         }
     }
 
-    private void drawGridLine(Canvas canvas, float lineValue ){
+    private void drawGridLine(Canvas canvas, float lineValue, int width){
         Paint paint = gProps.getGridPaint();
 
         int yCoord = gProps.getGridYPos(lineValue);
-        int width = graphLines.size() * (gProps.getGraphIndent() + gProps.getColumnWidth());
+
         canvas.drawLine(gProps.getMarginLeft(), yCoord, width, yCoord, paint);
         Log.d("DRAWING", "Drawing line: " + gProps.getMarginLeft() + ", " + yCoord + ", "+ width + ", " + yCoord + ". Value: " + lineValue);
-
-
     }
 
     private void drawVerticalLabel(Canvas canvas, float value){
         int yCoord = gProps.getGridYPos(value);
         String label = String.format("%.2f", value);
         Paint paint = new Paint();
-        paint.setTextSize(30);
-        canvas.drawText(label, 10, yCoord+10, paint);
+        paint.setTextSize(35);
+        canvas.drawText(label, 10, yCoord+15, paint);
     }
 
     public void draw(Canvas canvas, View view){
@@ -148,9 +147,9 @@ public class GraphManager {
 
         drawHorizontalLabel(horzValue, gl.getBarTopX()+gProps.getColumnWidth()/2);
 
-        canvas.drawLine(gl.getBarTopX() + 3, gl.getBarTopY() - 3, gl.getBarBotX() + 3, gl.getBarTopY() - 3, bar3DPaint);
-        canvas.drawLine(gl.getBarBotX()+3, gl.getBarTopY()-3, gl.getBarBotX() + 3,
-                gProps.getHeight() - gProps.getTopBottomIndent(), bar3DPaint);
+        //canvas.drawLine(gl.getBarTopX() + 3, gl.getBarTopY() - 3, gl.getBarBotX() + 3, gl.getBarTopY() - 3, bar3DPaint);
+        //canvas.drawLine(gl.getBarBotX()+3, gl.getBarTopY()-3, gl.getBarBotX() + 3,
+        //       gProps.getHeight() - gProps.getTopBottomIndent(), bar3DPaint);
 
         Log.d("DRAWING", "Drawing rect "+ curGraph + ": " + gl.getBarTopX() + " " + gl.getBarTopY() +
                 " " + (gl.getBarBotX()) );//+ ". Offset: " + offset);

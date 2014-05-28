@@ -6,6 +6,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.TimePickerDialog;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
@@ -30,6 +31,9 @@ import java.util.GregorianCalendar;
  */
 public class AddDataActivity extends Activity implements View.OnClickListener{
 
+    static final int DATE_PICKER_ID = 0;
+    static final int TIME_PICKER_ID = 1;
+
     EditText dateEdit;
     EditText timeEdit;
     EditText amountEdit;
@@ -38,6 +42,8 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
     RadioButton selectTimeRb;
     RadioButton currentTimeRb;
     DBHelper dbHelper;
+    boolean pickerIsActive;
+    //SimpleDateFormat dateFormat;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,31 +64,19 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
         minimizeBtn.setOnClickListener(this);
         runGraphViewBtn.setOnClickListener(this);
 
+        /*SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
+        String dateLocalizedFormatPattern = simpleDateFormat.toLocalizedPattern();
+        dateFormat = new SimpleDateFormat(dateLocalizedFormatPattern);*/
+
         final Calendar c = GregorianCalendar.getInstance();
         int year = c.get(Calendar.YEAR);
-        int month = c.get(Calendar.MONTH) + 1;
+        int month = c.get(Calendar.MONTH);
         int day = c.get(Calendar.DAY_OF_MONTH);
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
-        String date;
-        String time;
 
-        if (minute < 10){
-            time = hour + ":" + "0" + minute;
-        }
-        else{
-            time = hour + ":" + minute;
-        }
-
-        if (month < 10){
-            date = day + "-" + "0" + month + "-" + year;
-        }
-        else{
-            date = day + "-" + month + "-" + year;
-        }
-
-        dateEdit.setText(date);
-        timeEdit.setText(time);
+        dateEdit.setText(getFormattedDayValue(day) + "-" + getFormattedMonthValue(month) + "-" + year);
+        timeEdit.setText(hour + ":" + getFormattedMinuteValue(minute));
         dbHelper = new DBHelper(this);
     }
 
@@ -90,30 +84,32 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.add_and_minimize:{
-                createDBLine();
+                addDataAndMinimize();
                 break;
             }
             case R.id.add_and_go_to_graph_view:{
+                addDataAndGoToGraphView();
                 break;
             }
             case R.id.current_time: {
                 timeEdit.setEnabled(false);
+                dateEdit.setEnabled(false);
                 break;
             }
             case R.id.select_time:{
                 timeEdit.setEnabled(true);
+                dateEdit.setEnabled(true);
                 break;
             }
         }
     }
 
-    private void createDBLine(){
+    private long createDBLine(){
         if (amountEdit.getText().toString().length() == 0) {
-            Toast.makeText(this,R.string.dataPage_errInputAmount, Toast.LENGTH_LONG).show();
-            return;
+            Toast.makeText(this,R.string.dataPage_errInputAmount, Toast.LENGTH_SHORT).show();
+            return -1;
         }
         ContentValues cv = new ContentValues();
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         Calendar calendar = new GregorianCalendar();
         Date date = new Date();
@@ -129,12 +125,34 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
         cv.put("amount", Integer.parseInt(amountEdit.getText().toString()));
         cv.put("date", calendar.getTimeInMillis());
 
-        if (db.insert("objects", null, cv) != -1){
+        return dbHelper.getWritableDatabase().insert("objects", null, cv);
+    }
+
+    private void addDataAndMinimize(){
+        if (createDBLine() != -1) {
             dbHelper.close();
-            Toast.makeText(this,R.string.dataPage_successAddLine, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.dataPage_successAddLine, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent();
+            intent.putExtra("gotographview", false);
             setResult(RESULT_OK, intent);
             finish();
+        }
+        else {
+            Toast.makeText(this, R.string.dataPage_failAddLine, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void addDataAndGoToGraphView(){
+        if (createDBLine() != -1) {
+            dbHelper.close();
+            Toast.makeText(this, R.string.dataPage_successAddLine, Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent();
+            intent.putExtra("gotographview", true);
+            setResult(RESULT_OK, intent);
+            finish();
+        }
+        else {
+            Toast.makeText(this, R.string.dataPage_failAddLine, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -143,14 +161,18 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
             switch (view.getId()){
                 case R.id.date_edit:{
                     if (gainFocus) {
-                        showDatePickerDialog();
+                        if (!pickerIsActive) {
+                            showPicker(DATE_PICKER_ID);
+                        }
                         view.clearFocus();
                     }
                     break;
                 }
                 case R.id.time_edit:{
                     if (gainFocus) {
-                        showTimePickerDialog();
+                        if (!pickerIsActive){
+                            showPicker(TIME_PICKER_ID);
+                        }
                         view.clearFocus();
                     }
                     break;
@@ -159,14 +181,17 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
         }
     };
 
-    public void showTimePickerDialog() {
-        DialogFragment newFragment = new TimePickerFragment();
-        newFragment.show(getFragmentManager(), "timePicker");
-    }
+    public void showPicker(int pickerID) {
+        pickerIsActive = true;
 
-    public void showDatePickerDialog() {
-        DialogFragment newFragment = new DatePickerFragment();
-        newFragment.show(getFragmentManager(), "datePicker");
+        if (pickerID == TIME_PICKER_ID){
+            DialogFragment newFragment = new TimePickerFragment();
+            newFragment.show(getFragmentManager(), "timePicker");
+        }
+        else if (pickerID == DATE_PICKER_ID){
+            DialogFragment newFragment = new DatePickerFragment();
+            newFragment.show(getFragmentManager(), "datePicker");
+        }
     }
 
     public class TimePickerFragment extends DialogFragment
@@ -185,14 +210,12 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
         }
 
         public void onTimeSet(TimePicker view, int hour, int minute) {
-            String time;
-            if (minute < 10){
-                time = hour + ":" + "0" + minute;
-            }
-            else{
-                time = hour + ":" + minute;
-            }
-            timeEdit.setText(time);
+            timeEdit.setText(hour + ":" + getFormattedMinuteValue(minute));
+        }
+
+        @Override
+        public void onDismiss(DialogInterface dialog){
+            pickerIsActive = false;
         }
     }
 
@@ -212,14 +235,41 @@ public class AddDataActivity extends Activity implements View.OnClickListener{
         }
 
         public void onDateSet(DatePicker view, int year, int month, int day) {
-            String date;
-            if (month < 10){
-                date = day + "-" + "0" + (++month) + "-" + year;
-            }
-            else{
-                date = day + "-" + (++month) + "-" + year;
-            }
-            dateEdit.setText(date);
+            dateEdit.setText(getFormattedDayValue(day) + "-" + getFormattedMonthValue(month) + "-" + year);
+        }
+        @Override
+        public void onDismiss(DialogInterface dialog){
+            pickerIsActive = false;
+        }
+    }
+
+    private String getFormattedMonthValue(int month){
+        month++;
+        if (month < 10) {
+            return "0" + month;
+        }
+        else {
+            return String.valueOf(month);
+        }
+    }
+
+    private String getFormattedMinuteValue(int minute){
+
+        if (minute < 10) {
+            return "0" + minute;
+        }
+        else {
+            return String.valueOf(minute);
+        }
+    }
+
+    private String getFormattedDayValue(int day){
+
+        if (day < 10) {
+            return "0" + day;
+        }
+        else {
+            return String.valueOf(day);
         }
     }
 }

@@ -1,10 +1,13 @@
 package com.howmuchof.squirrels.android;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +31,7 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
 
     static final int REQUEST_CODE_ADD = 0;
     static final int REQUEST_CODE_UPDATE = 1;
+    static final int GRAPH_VIEW_TAB = 2;
     Button addBtn;
     Button deleteBtn;
     Button okBtn;
@@ -37,6 +41,8 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
     Boolean deleteMode;
     List<Squirrel> objList;
     List<Integer> itemsToRemove;
+    int backgColor;
+    boolean popUpIsRan;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
@@ -56,6 +62,7 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
 
         dbHelper = new DBHelper(getActivity());
         fillListView();
+        initBackgroundColor();
         return view;
     }
 
@@ -63,8 +70,9 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.add_line_btn:{
-                Intent intent = new Intent(getActivity(), AddDataActivity.class);
-                startActivityForResult(intent, REQUEST_CODE_ADD);
+                if (!popUpIsRan) {
+                    launchAddDataDialog();
+                }
                 break;
             }
             case R.id.delete_btn:{
@@ -80,39 +88,64 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
                 break;
             }
         }
+
+    }
+
+    private void launchAddDataDialog(){
+        popUpIsRan = true;
+        Intent intent = new Intent(getActivity(), AddDataActivity.class);
+        startActivityForResult(intent, REQUEST_CODE_ADD);
+    }
+
+    private void launchModifyDataDialog(Squirrel squirrel){
+        popUpIsRan = true;
+        Intent intent = new Intent(getActivity(), ModifyDataActivity.class);
+        intent.putExtra("id", squirrel.getID());
+        intent.putExtra("date", squirrel.getDate());
+        intent.putExtra("amount", squirrel.getAmount());
+        startActivityForResult(intent, REQUEST_CODE_UPDATE);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        popUpIsRan = false;
         if (resultCode == Activity.RESULT_OK) {
-            fillListView();
+            boolean goToGraphView = data.getBooleanExtra("gotographview", false);
+            if (goToGraphView) {
+                ActionBar actionBar = getActivity().getActionBar();
+                if (null != actionBar) {
+                    actionBar.selectTab(actionBar.getTabAt(GRAPH_VIEW_TAB));
+                }
+            }
+            else {
+                fillListView();
+            }
         }
     }
 
     private void fillListView(){
         ArrayList<HashMap<String, String>> items = new ArrayList<HashMap<String, String>>();
         Calendar calendar = new GregorianCalendar();
-        String time;
         String date;
-        objList = dbHelper.getDataFromDB();
+        objList = dbHelper.getDataFromDBSortedByDate();
 
-        for (Squirrel s: objList){
+        for (Squirrel s: objList) {
             HashMap<String, String> map = new HashMap<String, String>();
             map.put("amount", String.valueOf(s.getAmount()));
             calendar.setTimeInMillis(s.getDate());
-            time = calendar.get(Calendar.HOUR_OF_DAY) + ":" +
-                    calendar.get(Calendar.MINUTE);
-            date = calendar.get(Calendar.DAY_OF_MONTH) + "-" +
-                    (calendar.get(Calendar.MONTH)+1) + "-" +
-                    calendar.get(Calendar.YEAR);
-            map.put("time", time);
+            date = getFormattedDayValue(calendar.get(Calendar.DAY_OF_MONTH)) + "-" +
+                    getFormattedMonthValue(calendar.get(Calendar.MONTH)) + "-" +
+                    calendar.get(Calendar.YEAR) + " " +
+                    calendar.get(Calendar.HOUR_OF_DAY) + ":" +
+                    getFormattedMinuteValue(calendar.get(Calendar.MINUTE));
+
             map.put("date", date);
             items.add(map);
         }
 
         ListAdapter adapter = new SimpleAdapter(getActivity(), items,
-                R.layout.listview_item, new String[]{"amount", "date", "time"},
-                new int[]{R.id.amount_textview, R.id.date_textview, R.id.time_textview});
+                R.layout.listview_item, new String[]{"amount", "date"},
+                new int[]{R.id.amount_textview, R.id.date_textview});
 
         listView.setAdapter(adapter);
 
@@ -127,22 +160,25 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
 
                 if (deleteMode){
                     int index = itemsToRemove.indexOf(squirrel.getID());
-                    if (index != -1){
-                        view.setBackgroundColor(Color.WHITE);
+                    if (-1 != index){
+                        view.setBackgroundColor(backgColor);
                         itemsToRemove.remove(index);
+                        if (itemsToRemove.size() == 0){
+                            okBtn.setEnabled(false);
+                        }
                     }
                     else{
                         view.setBackgroundColor(Color.parseColor("#FF8282"));
                         itemsToRemove.add(squirrel.getID());
+                        if (itemsToRemove.size() == 1){
+                            okBtn.setEnabled(true);
+                        }
                     }
                 }
                 else{
-                    Intent intent = new Intent(getActivity(), ModifyDataActivity.class);
-                    intent.putExtra("id", squirrel.getID());
-                    intent.putExtra("date", squirrel.getDate());
-                    intent.putExtra("amount", squirrel.getAmount());
-
-                    startActivityForResult(intent, REQUEST_CODE_UPDATE);
+                    if (!popUpIsRan) {
+                        launchModifyDataDialog(squirrel);
+                    }
                 }
             }
         });
@@ -169,7 +205,47 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
         deleteBtn.setVisibility(View.INVISIBLE);
         addBtn.setVisibility(View.INVISIBLE);
         okBtn.setVisibility(View.VISIBLE);
+        okBtn.setEnabled(false);
         cancelBtn.setVisibility(View.VISIBLE);
+
+    }
+
+    private String getFormattedMonthValue(int month){
+        month++;
+        if (month < 10) {
+            return "0" + month;
+        }
+        else {
+            return String.valueOf(month);
+        }
+    }
+
+    private String getFormattedMinuteValue(int minute){
+
+        if (minute < 10) {
+            return "0" + minute;
+        }
+        else {
+            return String.valueOf(minute);
+        }
+    }
+
+    private String getFormattedDayValue(int day){
+
+        if (day < 10) {
+            return "0" + day;
+        }
+        else {
+            return String.valueOf(day);
+        }
+    }
+
+    private void initBackgroundColor(){
+        TypedValue a = new TypedValue();
+        getActivity().getTheme().resolveAttribute(android.R.attr.windowBackground, a, true);
+        if (a.type >= TypedValue.TYPE_FIRST_COLOR_INT && a.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+            backgColor = a.data;
+        }
     }
 }
 

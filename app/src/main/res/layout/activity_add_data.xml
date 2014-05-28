@@ -30,6 +30,7 @@
         android:layout_marginTop="10dp"
         android:layout_height="wrap_content"
         android:editable="false"
+        android:enabled="false"
         android:layout_gravity="center_horizontal">
     </EditText>
 
@@ -51,30 +52,35 @@
         android:inputType="phone">
     </EditText>
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:layout_marginLeft="25dp"
-        android:layout_marginRight="25dp"
+        android:layout_height="wrap_content"
         android:gravity="bottom"
         android:layout_gravity="bottom"
-        android:layout_marginTop="25dp">
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/dataPage_acceptAndMinimize"
-            android:id="@+id/add_and_minimize"
-            android:layout_weight="1"
-            android:onClick="onClick"/>
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="25dp">
 
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/dataPage_acceptAndLookAtGraph"
             android:id="@+id/add_and_go_to_graph_view"
+            android:onClick="onClick"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/add_and_minimize" />
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="100dp"
+            android:text="@string/dataPage_acceptAndMinimize"
+            android:id="@+id/add_and_minimize"
             android:layout_weight="1"
-            android:onClick="onClick"/>
-    </LinearLayout>
+            android:onClick="onClick"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignBottom="@+id/add_and_go_to_graph_view" />
+    </RelativeLayout>
+
+
 </LinearLayout>
