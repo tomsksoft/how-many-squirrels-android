@@ -102,12 +102,12 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
 
     private void showGraphics(){
         if (checkDBData()){
-            graphManager = new GraphManager();
+            graphManager = new GraphManager(context);
             graphManager.getGraphProperties().setXFormat(GraphProperties.HOR_VALUES_DATE_FORMAT);
             initGraphValues();
         }
         else {
-            graphManager = new GraphManager();
+            graphManager = new GraphManager(context);
             Toast.makeText(getActivity(), R.string.graphViewPage_notEnoughData, Toast.LENGTH_LONG).show();
         }
         imageView.invalidate();

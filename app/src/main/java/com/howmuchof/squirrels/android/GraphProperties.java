@@ -50,7 +50,7 @@ public class GraphProperties {
 
         topBottomIndent = 90;
         graphIndent = 15;
-        columnWidth = 145;
+        columnWidth = 160;
         marginLeft = 100;
         marginColumnLeft = 40;
 

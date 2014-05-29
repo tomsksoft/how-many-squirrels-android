@@ -34,13 +34,20 @@ public class MainFragmentActivity extends Fragment implements View.OnClickListen
         graphViewBtn.setOnClickListener(this);
         settingsBtn.setOnClickListener(this);
 
+        return view;
+    }
 
+    private void checkSettings(){
         SharedPreferences sPref = getActivity().getSharedPreferences("HowMuchOfShPref", Activity.MODE_PRIVATE);
         String objName = sPref.getString("object_name", "");
         if (objName.length() != 0) {
             settingsBtn.setVisibility(View.INVISIBLE);
         }
-        return view;
+    }
+
+    public void onResume(){
+        checkSettings();
+        super.onResume();
     }
 
 

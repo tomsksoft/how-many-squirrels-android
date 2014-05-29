@@ -1,10 +1,13 @@
 package com.howmuchof.squirrels.android;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,6 +16,7 @@ import android.widget.LinearLayout;
 
 import com.howmuchof.squirrels.android.Squirrel;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,19 +25,19 @@ import java.util.List;
 
 public class GraphManager {
 
-
-    private final static SimpleDateFormat dateFormat = new SimpleDateFormat("dd MM yy");
-    private final static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm");
+    private final static int FORMAT_DATE = 0;
+    private final static int FORMAT_TIME = 1;
 
     View imageView;
     Canvas canvas;
-
+    Context context;
     GraphProperties gProps;
 
     ArrayList<GraphValues> graphLines = new ArrayList<GraphValues>();
 
-    public GraphManager(){
+    public GraphManager(Context context){
         gProps = new GraphProperties();
+        this.context = context;
     }
 
     public GraphManager(List<List<Long>> data){
@@ -134,8 +138,8 @@ public class GraphManager {
 
         if (gProps.getXFormat() == GraphProperties.HOR_VALUES_DATE_FORMAT){
             Date d = new Date(value);
-            canvas.drawText(timeFormat.format(d),xPos, gProps.getHeight()-gProps.getTopBottomIndent()/2,paint);
-            canvas.drawText(dateFormat.format(d),xPos, gProps.getHeight()-gProps.getTopBottomIndent()/4+5,paint);
+            canvas.drawText(formatDate(d,FORMAT_TIME),xPos, gProps.getHeight()-gProps.getTopBottomIndent()/2,paint);
+            canvas.drawText(formatDate(d,FORMAT_DATE),xPos, gProps.getHeight()-gProps.getTopBottomIndent()/4+5,paint);
         }
         else {
             canvas.drawText(String.valueOf(value),xPos, gProps.getHeight()-gProps.getTopBottomIndent()/3,paint);
@@ -150,5 +154,35 @@ public class GraphManager {
             this.xValue = xValue;
             this.yValue = yValue;
         }
+    }
+
+    public String formatDate(Date date, int requestType){
+        String result = "";
+        DateFormat dateFormat;
+
+        if (date != null){
+            try {
+                if (requestType == FORMAT_DATE) {
+
+                    String format = Settings.System.getString(context.getContentResolver(), Settings.System.DATE_FORMAT);
+                    if (TextUtils.isEmpty(format)) {
+                        dateFormat = android.text.format.DateFormat.getDateFormat(context);
+                    } else {
+                        dateFormat = new SimpleDateFormat(format);
+                    }
+                    result = dateFormat.format(date);
+                }
+                else if (requestType == FORMAT_TIME) {
+                    dateFormat = android.text.format.DateFormat.getTimeFormat(context);
+                    result = " " + dateFormat.format(date);
+                }
+            }
+            catch (Exception e){
+                Log.d("CODE_ERROR","Couldn't resolve date with parameters: Date '" + date +
+                        "' and RequestType '" + requestType + "'");
+            }
+        }
+
+        return result;
     }
 }

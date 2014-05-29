@@ -65,9 +65,14 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
         listViewActions(view);
 
         dbHelper = new DBHelper(getActivity());
-        fillListView();
+        //fillListView();
         initBackgroundColor();
         return view;
+    }
+
+    public void onResume(){
+        fillListView();
+        super.onResume();
     }
 
     @Override

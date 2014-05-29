@@ -61,11 +61,8 @@ public class MainActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         ActionBar actionBar = this.getActionBar();
         if (null != actionBar) {
-            //Yeah, bad solution, I know
-            actionBar.selectTab(actionBar.getTabAt(0));
-            actionBar.selectTab(actionBar.getTabAt(1));
-            actionBar.selectTab(actionBar.getTabAt(requestCode));
-            //
+            ActionBar.Tab tab = actionBar.getTabAt(requestCode);
+            actionBar.selectTab(tab);
         }
     }
 
