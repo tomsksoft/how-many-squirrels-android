@@ -35,4 +35,11 @@
     <string name="indexPage_goToGraphView">Графики</string>
     <string name="indexPage_goToSettings">Настройки</string>
     <string name="graphViewPage_notEnoughData">Недостаточно данных для отображения графика</string>
+    <string name="graphViewPage_displayDataLabel">Отобразить данные</string>
+    <string name="graphViewPage_displayDataSinceLabel">c</string>
+    <string name="graphViewPage_displayDataUntilLabel">по</string>
+    <string name="graphViewPage_displayTimeRelated">Отобразить данные с учетом оси времени</string>
+    <string name="graphViewPage_displayNotTimeRelated">Отобразить данные без учета оси времени</string>
+
+
 </resources>

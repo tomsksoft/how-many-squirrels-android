@@ -1,6 +1,12 @@
 package com.howmuchof.squirrels.android;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.Fragment;
+import android.app.TimePickerDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -8,13 +14,24 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
@@ -22,38 +39,98 @@ import java.util.List;
  */
 public class GraphViewFragment extends Fragment implements View.OnClickListener{
 
+    static final int DATE_PICKER = 0;
+    static final int TIME_PICKER = 1;
+    static final int DATE_SINCE = 0;
+    static final int DATE_UNTIL = 1;
+
     DBHelper dbHelper;
-    View view;
     ImageView imageView;
     GraphManager graphManager;
+    Context context;
+
+    EditText dateSinceEdit;
+    EditText timeSinceEdit;
+    EditText dateUntilEdit;
+    EditText timeUntilEdit;
+
+    boolean pickerIsActive;
+    int focusedField;
+    Date dateSince;
+    Date dateUntil;
+    float mx;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
-        view = inflater.inflate(R.layout.graph_view_fragment, container, false);
+        View view = inflater.inflate(R.layout.graph_view_fragment, container, false);
         dbHelper = new DBHelper(getActivity());
-        if (checkDBData()){
-            imageView = (ImageView) view.findViewById(R.id.imageView);
-            imageView.setImageDrawable(new GraphDrawable());
-            graphManager = new GraphManager();
-            initGraph();
-        }
-        else {
-            Toast.makeText(getActivity(), R.string.graphViewPage_notEnoughData, Toast.LENGTH_LONG).show();
-        }
+        context = getActivity();
+
+        dateSinceEdit = (EditText) view.findViewById(R.id.date_since_edit_text);
+        timeSinceEdit = (EditText) view.findViewById(R.id.time_since_edit_text);
+        dateUntilEdit = (EditText) view.findViewById(R.id.date_until_edit_text);
+        timeUntilEdit = (EditText) view.findViewById(R.id.time_until_edit_text);
+        dateSinceEdit.setOnFocusChangeListener(focusChangeListener);
+        timeSinceEdit.setOnFocusChangeListener(focusChangeListener);
+        dateUntilEdit.setOnFocusChangeListener(focusChangeListener);
+        timeUntilEdit.setOnFocusChangeListener(focusChangeListener);
+
+        dateSince = new Date();
+        dateUntil = new Date();
+
+        imageView = (ImageView) view.findViewById(R.id.imageView);
+        imageView.setImageDrawable(new GraphDrawable());
+        setOnTouchListener(imageView);
+        initRange();
+        //showGraphics();
+
         return view;
     }
 
-    private boolean checkDBData(){
-        if (dbHelper.getRowCount() >= 2){
-            return true;
-        }
-        else {
-            return false;
-        }
+    public void onResume(){
+        initRange();
+        showGraphics();
+        super.onResume();
     }
 
-    private void initGraph(){
-        getGraphData(dbHelper.getDataFromDB(0,0));
+    private boolean checkDBData(){
+        if (2 <= dbHelper.getRowCount()) {
+            return true;
+        }
+        return false;
+    }
+
+    private void showGraphics(){
+        if (checkDBData()){
+            graphManager = new GraphManager();
+            graphManager.getGraphProperties().setXFormat(GraphProperties.HOR_VALUES_DATE_FORMAT);
+            initGraphValues();
+        }
+        else {
+            graphManager = new GraphManager();
+            Toast.makeText(getActivity(), R.string.graphViewPage_notEnoughData, Toast.LENGTH_LONG).show();
+        }
+        imageView.invalidate();
+    }
+
+    private void initGraphValues(){
+
+        getGraphData(dbHelper.getDataFromDB(dateSince.getTime(), dateUntil.getTime()));
+    }
+
+    private void initRange(){
+        Long dateValue = dbHelper.getDate(true);
+        if (dateValue > -1) {
+            dateSinceEdit.setText(formatDate(dateValue, DATE_PICKER));
+            timeSinceEdit.setText(formatDate(dateValue, TIME_PICKER));
+            dateSince.setTime(dateValue);
+        }
+        dateValue = dbHelper.getDate(false);
+        if (dateValue > -1) {
+            dateUntilEdit.setText(formatDate(dateValue, DATE_PICKER));
+            timeUntilEdit.setText(formatDate(dateValue, TIME_PICKER));
+            dateUntil.setTime(dateValue);
+        }
     }
 
     private void getGraphData(List<Squirrel> squirrels){
@@ -67,13 +144,193 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
 
     }
 
+    private View.OnFocusChangeListener focusChangeListener = new View.OnFocusChangeListener() {
+        public void onFocusChange(View view, boolean gainFocus) {
+            switch (view.getId()){
+                case R.id.date_since_edit_text:{
+                    if (gainFocus) {
+                        if (!pickerIsActive) {
+                            showPicker(DATE_PICKER, DATE_SINCE);
+                        }
+                        view.clearFocus();
+
+                    }
+                    break;
+                }
+                case R.id.time_since_edit_text:{
+                    if (gainFocus) {
+                        if (!pickerIsActive){
+                            showPicker(TIME_PICKER, DATE_SINCE);
+                        }
+                        view.clearFocus();
+                    }
+                    break;
+                }
+                case R.id.date_until_edit_text:{
+                    if (gainFocus) {
+                        if (!pickerIsActive) {
+                            showPicker(DATE_PICKER, DATE_UNTIL);
+                        }
+                        view.clearFocus();
+                    }
+                    break;
+                }
+                case R.id.time_until_edit_text:{
+                    if (gainFocus) {
+                        if (!pickerIsActive){
+                            showPicker(TIME_PICKER, DATE_UNTIL);
+                        }
+                        view.clearFocus();
+                    }
+                    break;
+                }
+            }
+        }
+    };
+
+    public void showPicker(int pickerID, int field) {
+        pickerIsActive = true;
+        focusedField = field;
+        if (pickerID == TIME_PICKER){
+            DialogFragment newFragment = new TimePickerFragment();
+            newFragment.show(getFragmentManager(), "timePicker");
+        }
+        else if (pickerID == DATE_PICKER){
+            DialogFragment newFragment = new DatePickerFragment();
+            newFragment.show(getFragmentManager(), "datePicker");
+        }
+    }
+
+    public class TimePickerFragment extends DialogFragment
+            implements TimePickerDialog.OnTimeSetListener {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the current time as the default values for the picker
+            final Calendar c = new GregorianCalendar();
+            if (focusedField == DATE_SINCE) {
+                c.setTime(dateSince);
+            }
+            else if (focusedField == DATE_UNTIL) {
+                c.setTime(dateUntil);
+            }
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            int minute = c.get(Calendar.MINUTE);
+
+            // Create a new instance of TimePickerDialog and return it
+            return new TimePickerDialog(getActivity(), this, hour, minute,
+                    android.text.format.DateFormat.is24HourFormat(context));
+        }
+
+        public void onTimeSet(TimePicker view, int hour, int minute) {
+            Calendar c = new GregorianCalendar();
+            if (focusedField == DATE_SINCE) {
+                c.setTime(dateSince);
+                c.set(Calendar.HOUR_OF_DAY, hour);
+                c.set(Calendar.MINUTE,minute);
+                dateSince = c.getTime();
+                timeSinceEdit.setText(formatDate(dateSince.getTime(), TIME_PICKER));
+            }
+            else if (focusedField == DATE_UNTIL) {
+                c.setTime(dateUntil);
+                c.set(Calendar.HOUR_OF_DAY, hour);
+                c.set(Calendar.MINUTE,minute);
+                dateUntil = c.getTime();
+                timeUntilEdit.setText(formatDate(dateUntil.getTime(), TIME_PICKER));
+            }
+            showGraphics();
+        }
+
+        @Override
+        public void onDismiss(DialogInterface dialog){
+            pickerIsActive = false;
+            super.onDismiss(dialog);
+        }
+    }
+
+    public class DatePickerFragment extends DialogFragment
+            implements DatePickerDialog.OnDateSetListener {
+
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            // Use the current date as the default date in the picker
+            final Calendar c = new GregorianCalendar();
+            if (focusedField == DATE_SINCE) {
+                c.setTime(dateSince);
+            }
+            else if (focusedField == DATE_UNTIL) {
+                c.setTime(dateUntil);
+            }
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+
+            // Create a new instance of DatePickerDialog and return it
+            return new DatePickerDialog(getActivity(), this, year, month, day);
+        }
+
+        public void onDateSet(DatePicker view, int year, int month, int day) {
+            Calendar c = new GregorianCalendar();
+            if (focusedField == DATE_SINCE) {
+                c.setTime(dateSince);
+                c.set(year, month, day);
+                dateSince = c.getTime();
+                dateSinceEdit.setText(formatDate(dateSince.getTime(), DATE_PICKER));
+            }
+            else if (focusedField == DATE_UNTIL) {
+                c.setTime(dateUntil);
+                c.set(year, month, day);
+                dateUntil = c.getTime();
+                dateUntilEdit.setText(formatDate(dateUntil.getTime(), DATE_PICKER));
+            }
+            showGraphics();
+        }
+        @Override
+        public void onDismiss(DialogInterface dialog){
+            pickerIsActive = false;
+            super.onDismiss(dialog);
+        }
+    }
+
+    public String formatDate(long dateValue, int requestType){
+        Date date = new Date();
+        date.setTime(dateValue);
+        String result = "";
+        DateFormat dateFormat;
+
+        if (date != null){
+            try {
+                if (requestType == DATE_PICKER) {
+
+                    String format = Settings.System.getString(context.getContentResolver(), Settings.System.DATE_FORMAT);
+                    if (TextUtils.isEmpty(format)) {
+                        dateFormat = android.text.format.DateFormat.getDateFormat(context);
+                    } else {
+                        dateFormat = new SimpleDateFormat(format);
+                    }
+                    result = dateFormat.format(date);
+                }
+                else if (requestType == TIME_PICKER) {
+                    dateFormat = android.text.format.DateFormat.getTimeFormat(context);
+                    result = " " + dateFormat.format(date);
+                }
+            }
+            catch (Exception e){
+                Log.d("CODE_ERROR","Couldn't resolve date with parameters: Date '" + date +
+                        "' and RequestType '" + requestType + "'");
+            }
+        }
+
+        return result;
+    }
+
+
     private class GraphDrawable extends Drawable {
 
         @Override
         public void draw(Canvas canvas) {
             Log.d("DRAWING", "Got inside of draw method");
-            graphManager.getGraphProperties().setXFormat(GraphProperties.HOR_VALUES_DATE_FORMAT);
-            graphManager.draw(canvas, getView());
+            graphManager.draw(canvas, imageView);
         }
 
         @Override
@@ -86,4 +343,31 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
         public void setColorFilter(ColorFilter cf) {}
 
     }
+
+    private void setOnTouchListener(View view){
+        view.setOnTouchListener(new View.OnTouchListener(){
+            @Override
+            public boolean onTouch(View arg0, MotionEvent event) {
+                float curX;
+
+                switch (event.getAction()) {
+
+                    case MotionEvent.ACTION_DOWN:
+                        mx = event.getX();
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        curX = event.getX();
+                        imageView.scrollBy((int) (mx - curX), 0);
+                        mx = curX;
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        curX = event.getX();
+                        imageView.scrollBy((int) (mx - curX), 0);
+                        break;
+                }
+                return true;
+            }
+        });
+    }
+
 }

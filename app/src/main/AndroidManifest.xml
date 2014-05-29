@@ -19,12 +19,12 @@
         <activity
             android:name="com.howmuchof.squirrels.android.AddDataActivity"
             android:label="@string/dataPage_addPageTitle"
-            android:theme="@android:style/Theme.Dialog">
+            android:theme="@android:style/Theme.Holo.Light.Dialog">
         </activity>
         <activity
             android:name="com.howmuchof.squirrels.android.ModifyDataActivity"
             android:label="@string/dataPage_modifyPageTitle"
-            android:theme="@android:style/Theme.Dialog">
+            android:theme="@android:style/Theme.Holo.Light.Dialog">
         </activity>
         <activity
             android:name="com.howmuchof.squirrels.android.SettingsActivity"

@@ -191,6 +191,7 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
         @Override
         public void onDismiss(DialogInterface dialog){
             pickerIsActive = false;
+            super.onDismiss(dialog);
         }
     }
 
@@ -220,6 +221,7 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
         @Override
         public void onDismiss(DialogInterface dialog){
             pickerIsActive = false;
+            super.onDismiss(dialog);
         }
     }
 

@@ -129,21 +129,13 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
 
     private void fillListView(){
         ArrayList<HashMap<String, String>> items = new ArrayList<HashMap<String, String>>();
-//        Calendar calendar = new GregorianCalendar();
         String date;
         objList = dbHelper.getDataFromDBSortedByDate();
 
         for (Squirrel s: objList) {
             HashMap<String, String> map = new HashMap<String, String>();
             map.put("amount", String.valueOf(s.getAmount()));
-//            calendar.setTimeInMillis(s.getDate());
-/*
-            date = getFormattedDayValue(calendar.get(Calendar.DAY_OF_MONTH)) + "-" +
-                    getFormattedMonthValue(calendar.get(Calendar.MONTH)) + "-" +
-                    calendar.get(Calendar.YEAR) + " " +
-                    calendar.get(Calendar.HOUR_OF_DAY) + ":" +
-                    getFormattedMinuteValue(calendar.get(Calendar.MINUTE));
-*/
+
             date = formatDate(new Date(s.getDate()));
             map.put("date", date);
             items.add(map);
@@ -214,36 +206,6 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
         okBtn.setEnabled(false);
         cancelBtn.setVisibility(View.VISIBLE);
 
-    }
-
-    private String getFormattedMonthValue(int month){
-        month++;
-        if (month < 10) {
-            return "0" + month;
-        }
-        else {
-            return String.valueOf(month);
-        }
-    }
-
-    private String getFormattedMinuteValue(int minute){
-
-        if (minute < 10) {
-            return "0" + minute;
-        }
-        else {
-            return String.valueOf(minute);
-        }
-    }
-
-    private String getFormattedDayValue(int day){
-
-        if (day < 10) {
-            return "0" + day;
-        }
-        else {
-            return String.valueOf(day);
-        }
     }
 
     private void initBackgroundColor(){

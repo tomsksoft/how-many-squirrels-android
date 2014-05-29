@@ -27,10 +27,6 @@ public class GraphManager {
 
     View imageView;
     Canvas canvas;
-    Canvas gridLabelsCanvas;
-    Bitmap gridLabelsBitmap;
-    float mx;
-//    int offset;
 
     GraphProperties gProps;
 
@@ -97,45 +93,23 @@ public class GraphManager {
     }
 
     public void draw(Canvas canvas, View view){
+
+        if (graphLines.size()<2){
+            canvas.drawColor(Color.TRANSPARENT);
+            return;
+        }
+
         this.canvas = canvas;
         gProps.setCanvas(canvas);
         imageView = view;
 
-        int height = canvas.getHeight();
-        setOnTouchListener(view);
-        //offset = 0;
-
-        FrameLayout.LayoutParams viewLp =
-                (FrameLayout.LayoutParams) imageView.getLayoutParams();
-        int viewMarginTop = viewLp.topMargin;
-        int viewMarginBottom = viewLp.bottomMargin;
-        int viewMarginRight = viewLp.rightMargin;
-        int viewMarginLeft = viewLp.leftMargin;
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(gProps.getGraphWidth(graphLines.size()) +
-                gProps.getMarginColumnLeft() + gProps.getMarginLeft() + viewMarginLeft + viewMarginRight,
-                height + viewMarginBottom + viewMarginTop + 1000);
-        lp.setMargins(viewMarginLeft,viewMarginTop,viewMarginRight,viewMarginBottom);
-        view.setLayoutParams(lp);
-
+        canvas.drawColor(Color.TRANSPARENT);
         drawGrid(canvas);
         for (int i = 0; i < graphLines.size(); i++){
             drawGraph(graphLines.get(i).yValue, graphLines.get(i).xValue, i);
         }
-
-
-        gridLabelsBitmap = Bitmap.createBitmap(gProps.getMarginColumnLeft() + gProps.getMarginLeft(),
-                gProps.getHeight(), Bitmap.Config.ARGB_8888);
-        gridLabelsCanvas = new Canvas(gridLabelsBitmap);
-        //drawGridBitmap();
     }
 
-    private void drawGridBitmap(){
-        gridLabelsCanvas.drawColor(Color.WHITE);
-        drawGrid(gridLabelsCanvas);
-/*        for (int i = 0; i < graphLines.size(); i++){
-            drawGraph(graphLines.get(i).yValue, graphLines.get(i).xValue, i);
-        }*/
-    }
 
     private void drawGraph(int vertValue, long horzValue, int curGraph){
 
@@ -166,49 +140,6 @@ public class GraphManager {
         else {
             canvas.drawText(String.valueOf(value),xPos, gProps.getHeight()-gProps.getTopBottomIndent()/3,paint);
         }
-    }
-
-    private void setOnTouchListener(View view){
-        view.setOnTouchListener(new View.OnTouchListener(){
-            @Override
-            public boolean onTouch(View arg0, MotionEvent event) {
-            float curX;
-
-            switch (event.getAction()) {
-
-                case MotionEvent.ACTION_DOWN:
-                    mx = event.getX();
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    curX = event.getX();
-/*                    offset -= mx - curX;
-                    if (offset > 0) {
-                        offset = 0;
-                    }
-                    else if (offset < gProps.getGraphWidth()){
-                        offset = gProps.getGraphWidth();
-                    }
-                    if (offset%30 == 0) {
-                       drawGraphBitmap();
-                    }*/
-
-                    imageView.scrollBy((int) (mx - curX), 0);
-                    mx = curX;
-                    canvas.drawBitmap(gridLabelsBitmap, 0, 0, null);
-                    imageView.invalidate();
-                    break;
-                case MotionEvent.ACTION_UP:
-                   curX = event.getX();
-                    /*offset += mx - curX;
-                    if (offset%10 == 0) {
-                        drawGraphBitmap();
-                    }*/
-                    imageView.scrollBy((int) (mx - curX), 0);
-                    break;
-            }
-            return true;
-            }
-        });
     }
 
     protected class GraphValues{

@@ -87,7 +87,7 @@ public class DBHelper extends SQLiteOpenHelper {
         String countQuery;
         List<Squirrel> list = new ArrayList<Squirrel>();
 
-            countQuery = "SELECT * FROM " + TABLE_NAME + " ORDER BY date DESC,id DESC";
+        countQuery = "SELECT * FROM " + TABLE_NAME + " ORDER BY date DESC,id DESC";
         Cursor cursor = db.rawQuery(countQuery, null);
         int idColIndex = cursor.getColumnIndex("id");
         int amountColIndex = cursor.getColumnIndex("amount");
@@ -120,5 +120,27 @@ public class DBHelper extends SQLiteOpenHelper {
         int count = cursor.getCount();
         cursor.close();
         return count;
+    }
+
+    public long getDate(boolean earliest){
+        SQLiteDatabase db = getWritableDatabase();
+        long value;
+        String query;
+        if (earliest) {
+            query = "SELECT date FROM " + TABLE_NAME + " ORDER BY date ASC LIMIT 1";
+        }
+        else {
+            query = "SELECT date FROM " + TABLE_NAME + " ORDER BY date DESC LIMIT 1";
+        }
+
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.moveToFirst()){
+            value = cursor.getLong(cursor.getColumnIndex("date"));
+        }
+        else {
+            value = -1;
+        }
+        cursor.close();
+        return value;
     }
 }
