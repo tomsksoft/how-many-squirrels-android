@@ -154,11 +154,11 @@ public class ModifyDataActivity extends Activity implements View.OnClickListener
 
         if (pickerID == TIME_PICKER){
             DialogFragment newFragment = new TimePickerFragment();
-            newFragment.show(getFragmentManager(), "timePicker");
+            newFragment.show(getFragmentManager(), "timePickerModify");
         }
         else if (pickerID == DATE_PICKER){
             DialogFragment newFragment = new DatePickerFragment();
-            newFragment.show(getFragmentManager(), "datePicker");
+            newFragment.show(getFragmentManager(), "datePickerModify");
         }
     }
 

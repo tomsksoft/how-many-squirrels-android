@@ -30,6 +30,7 @@ public class GraphManager {
 
     View imageView;
     Canvas canvas;
+    //Canvas vertLabelsCanvas;
     Context context;
     GraphProperties gProps;
 
@@ -66,20 +67,20 @@ public class GraphManager {
         return graphLines.size();
     }
 
-    private void drawGrid(Canvas canvas){
+    private void drawGrid(){
         Log.d("DRAWING", "Max/Min values: " + gProps.getMaxVertValue() + " " + gProps.getMinVertValue());
         float value = (float)(gProps.getMaxVertValue() - gProps.getMinVertValue())/10;
         float lineValue = gProps.getMinVertValue();
         int width = gProps.getGraphWidth(graphLines.size());//graphLines.size() * (gProps.getGraphIndent() + gProps.getColumnWidth());
 
         while (lineValue <= gProps.getMaxVertValue() + value) {
-            drawGridLine(canvas, lineValue, width);
-            drawVerticalLabel(canvas, lineValue);
+            drawGridLine(lineValue, width);
+            //drawVerticalLabel(lineValue);
             lineValue += value;
         }
     }
 
-    private void drawGridLine(Canvas canvas, float lineValue, int width){
+    private void drawGridLine(float lineValue, int width){
         Paint paint = gProps.getGridPaint();
 
         int yCoord = gProps.getGridYPos(lineValue);
@@ -88,32 +89,47 @@ public class GraphManager {
         Log.d("DRAWING", "Drawing line: " + gProps.getMarginLeft() + ", " + yCoord + ", "+ width + ", " + yCoord + ". Value: " + lineValue);
     }
 
-    private void drawVerticalLabel(Canvas canvas, float value){
-        int yCoord = gProps.getGridYPos(value);
-        String label = String.format("%.2f", value);
-        Paint paint = new Paint();
-        paint.setTextSize(35);
-        canvas.drawText(label, 10, yCoord+15, paint);
+    public void drawVerticalLabels(Canvas canvas){
+/*        if (null == canvas){
+            Log.d("DRAWING", "Vertical Labels Canvas is null");
+            return;
+        }*/
+        float value = (float)(gProps.getMaxVertValue() - gProps.getMinVertValue())/10;
+        float lineValue = gProps.getMinVertValue();
+
+        while (lineValue <= gProps.getMaxVertValue() + value) {
+            Log.d("DRAWING", "Vertical Label value: " + value);
+            int yCoord = gProps.getGridYPos(lineValue);
+            String label = String.format("%.2f", lineValue);
+            Paint paint = new Paint();
+            paint.setTextSize(35);
+            canvas.drawText(label, 0, yCoord+15, paint);
+
+            lineValue += value;
+        }
     }
 
-    public void draw(Canvas canvas, View view){
+    public void draw(Canvas graphCanvas, View view){
 
         if (graphLines.size()<2){
             canvas.drawColor(Color.TRANSPARENT);
             return;
         }
-
-        this.canvas = canvas;
+        this.canvas = graphCanvas;
+        //this.vertLabelsCanvas = vertLabelsCanvas;
         gProps.setCanvas(canvas);
         imageView = view;
 
         canvas.drawColor(Color.TRANSPARENT);
-        drawGrid(canvas);
+        drawGrid();
         for (int i = 0; i < graphLines.size(); i++){
             drawGraph(graphLines.get(i).yValue, graphLines.get(i).xValue, i);
         }
     }
 
+    /*public void setVertLabelsCanvas(Canvas labelCanvas){
+        vertLabelsCanvas = labelCanvas;
+    }*/
 
     private void drawGraph(int vertValue, long horzValue, int curGraph){
 
@@ -130,7 +146,7 @@ public class GraphManager {
         //       gProps.getHeight() - gProps.getTopBottomIndent(), bar3DPaint);
 
         Log.d("DRAWING", "Drawing rect "+ curGraph + ": " + gl.getBarTopX() + " " + gl.getBarTopY() +
-                " " + (gl.getBarBotX()) );//+ ". Offset: " + offset);
+                " " + (gl.getBarBotX()));
     }
 
     private void drawHorizontalLabel(Long value, int xPos){

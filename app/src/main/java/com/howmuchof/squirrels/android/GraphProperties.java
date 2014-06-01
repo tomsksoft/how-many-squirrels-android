@@ -51,7 +51,7 @@ public class GraphProperties {
         topBottomIndent = 90;
         graphIndent = 15;
         columnWidth = 160;
-        marginLeft = 100;
+        marginLeft = 10;
         marginColumnLeft = 40;
 
         horzLabelsPaint = new Paint();

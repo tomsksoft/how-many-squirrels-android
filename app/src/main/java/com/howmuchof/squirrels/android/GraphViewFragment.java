@@ -16,6 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -59,6 +60,9 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
     Date dateSince;
     Date dateUntil;
     float mx;
+    int maxX;
+    int minX;
+    int totalX;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
@@ -78,11 +82,13 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
         dateSince = new Date();
         dateUntil = new Date();
 
+        ImageView vertGraphLabels = (ImageView) view.findViewById(R.id.vert_graph_labels_image_view);
+        vertGraphLabels.setImageDrawable(new VertLabelsGraphDrawable());
         imageView = (ImageView) view.findViewById(R.id.imageView);
         imageView.setImageDrawable(new GraphDrawable());
         setOnTouchListener(imageView);
         initRange();
-        //showGraphics();
+        initMaxScrollValues();
 
         return view;
     }
@@ -90,6 +96,7 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
     public void onResume(){
         initRange();
         showGraphics();
+        totalX = minX;
         super.onResume();
     }
 
@@ -131,6 +138,18 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
             timeUntilEdit.setText(formatDate(dateValue, TIME_PICKER));
             dateUntil.setTime(dateValue);
         }
+    }
+
+    private void initMaxScrollValues(){
+        /*DisplayMetrics dm = getResources().getDisplayMetrics();
+        int screenW = dm.widthPixels;
+        int screenW = imageView.getWidth();
+        maxX = imageView.getDrawable().getBounds().width() - screenW;*/
+/*        imageView.measure(View.MeasureSpec.AT_MOST, View.MeasureSpec.UNSPECIFIED);
+
+        minX = imageView.getMeasuredWidth();
+        totalX = minX;
+        Log.d("DRAWING", "MaxX = " + maxX + " width = " + minX);*/
     }
 
     private void getGraphData(List<Squirrel> squirrels){
@@ -193,11 +212,11 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
         focusedField = field;
         if (pickerID == TIME_PICKER){
             DialogFragment newFragment = new TimePickerFragment();
-            newFragment.show(getFragmentManager(), "timePicker");
+            newFragment.show(getFragmentManager(), "timePickerGraph");
         }
         else if (pickerID == DATE_PICKER){
             DialogFragment newFragment = new DatePickerFragment();
-            newFragment.show(getFragmentManager(), "datePicker");
+            newFragment.show(getFragmentManager(), "datePickerGraph");
         }
     }
 
@@ -330,7 +349,35 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
         @Override
         public void draw(Canvas canvas) {
             Log.d("DRAWING", "Got inside of draw method");
+            if (maxX == 0){
+                maxX = canvas.getWidth();
+                minX = imageView.getScrollX();
+                totalX = minX;
+                Log.d("DRAWING", "MaxX = " + maxX + " MinX = " + minX);
+            }
             graphManager.draw(canvas, imageView);
+        }
+
+        @Override
+        public int getOpacity() {return 0;}
+
+        @Override
+        public void setAlpha(int alpha) {}
+
+        @Override
+        public void setColorFilter(ColorFilter cf) {}
+
+    }
+
+    private class VertLabelsGraphDrawable extends Drawable {
+
+        @Override
+        public void draw(Canvas canvas) {
+            //Log.d("DRAWING", "Setting up Vertical Graph Labels canvas");
+            //graphManager.setVertLabelsCanvas(canvas);
+            graphManager.getGraphProperties().setCanvas(canvas);
+
+            graphManager.drawVerticalLabels(canvas);
         }
 
         @Override
@@ -349,20 +396,47 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
             @Override
             public boolean onTouch(View arg0, MotionEvent event) {
                 float curX;
+                int scrollByX;
 
                 switch (event.getAction()) {
 
                     case MotionEvent.ACTION_DOWN:
                         mx = event.getX();
+
                         break;
                     case MotionEvent.ACTION_MOVE:
                         curX = event.getX();
-                        imageView.scrollBy((int) (mx - curX), 0);
+                        scrollByX = (int) (mx - curX);
+                        if (curX > mx){
+                            if ((totalX + scrollByX) <= minX){
+                                scrollByX = minX - totalX;
+                                totalX = minX;
+                            }
+                            else {
+                                totalX += scrollByX;
+                            }
+                        }
+                        else if (curX < mx){
+                            if ((totalX + scrollByX) >= maxX){
+                                scrollByX = maxX - totalX;
+                                totalX = maxX;
+                            }
+                            else {
+                                totalX += scrollByX;
+                            }
+                        }
+
+                        //imageView.scrollBy((int) (mx - curX), 0);
+                        imageView.scrollBy(scrollByX, 0);
                         mx = curX;
                         break;
                     case MotionEvent.ACTION_UP:
-                        curX = event.getX();
-                        imageView.scrollBy((int) (mx - curX), 0);
+                        //imageView.scrollBy(0, 0);
+/*                        curX = event.getX();
+                        if (absX<0){
+                            break;
+                        }
+                        imageView.scrollBy((int) (mx - curX), 0);*/
                         break;
                 }
                 return true;
