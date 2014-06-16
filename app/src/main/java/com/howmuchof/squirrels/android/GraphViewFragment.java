@@ -8,15 +8,11 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -25,8 +21,12 @@ import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.howmuchof.squirrels.common.graphview.GraphManager;
+import com.howmuchof.squirrels.common.graphview.GraphProperties;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -34,6 +34,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+
 
 /**
  * Created by LinXi on 4/20/2014.
@@ -63,6 +64,8 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
     int maxX;
     int minX;
     int totalX;
+    boolean redraw;
+    int visibleWidth;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
@@ -85,15 +88,13 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
         ImageView vertGraphLabels = (ImageView) view.findViewById(R.id.vert_graph_labels_image_view);
         vertGraphLabels.setImageDrawable(new VertLabelsGraphDrawable());
         imageView = (ImageView) view.findViewById(R.id.imageView);
-        imageView.setImageDrawable(new GraphDrawable());
         setOnTouchListener(imageView);
         initRange();
-        initMaxScrollValues();
-
         return view;
     }
 
     public void onResume(){
+        imageView.setImageDrawable(new GraphDrawable());
         initRange();
         showGraphics();
         totalX = minX;
@@ -118,6 +119,7 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
             Toast.makeText(getActivity(), R.string.graphViewPage_notEnoughData, Toast.LENGTH_LONG).show();
         }
         imageView.invalidate();
+        redraw = true;
     }
 
     private void initGraphValues(){
@@ -138,18 +140,6 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
             timeUntilEdit.setText(formatDate(dateValue, TIME_PICKER));
             dateUntil.setTime(dateValue);
         }
-    }
-
-    private void initMaxScrollValues(){
-        /*DisplayMetrics dm = getResources().getDisplayMetrics();
-        int screenW = dm.widthPixels;
-        int screenW = imageView.getWidth();
-        maxX = imageView.getDrawable().getBounds().width() - screenW;*/
-/*        imageView.measure(View.MeasureSpec.AT_MOST, View.MeasureSpec.UNSPECIFIED);
-
-        minX = imageView.getMeasuredWidth();
-        totalX = minX;
-        Log.d("DRAWING", "MaxX = " + maxX + " width = " + minX);*/
     }
 
     private void getGraphData(List<Squirrel> squirrels){
@@ -349,13 +339,21 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
         @Override
         public void draw(Canvas canvas) {
             Log.d("DRAWING", "Got inside of draw method");
-            if (maxX == 0){
-                maxX = canvas.getWidth();
+            if (redraw){
+                if (visibleWidth ==0) {
+                    visibleWidth = canvas.getWidth();
+                }
+                graphManager.changeCanvasSize(canvas, imageView);
+                maxX = graphManager.getGraphProperties().getGraphWidth(graphManager.getSize()) - visibleWidth;
+                if (maxX < 0){
+                    maxX = 0;
+                }
                 minX = imageView.getScrollX();
                 totalX = minX;
-                Log.d("DRAWING", "MaxX = " + maxX + " MinX = " + minX);
+                redraw = false;
+                Log.d("DRAWINGSIZE", "MaxX = " + maxX + " MinX = " + minX);
             }
-            graphManager.draw(canvas, imageView);
+            graphManager.draw(canvas);
         }
 
         @Override
@@ -373,10 +371,7 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
 
         @Override
         public void draw(Canvas canvas) {
-            //Log.d("DRAWING", "Setting up Vertical Graph Labels canvas");
-            //graphManager.setVertLabelsCanvas(canvas);
             graphManager.getGraphProperties().setCanvas(canvas);
-
             graphManager.drawVerticalLabels(canvas);
         }
 
@@ -408,9 +403,9 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
                         curX = event.getX();
                         scrollByX = (int) (mx - curX);
                         if (curX > mx){
-                            if ((totalX + scrollByX) <= minX){
-                                scrollByX = minX - totalX;
-                                totalX = minX;
+                            if ((totalX + scrollByX) <= 0){
+                                scrollByX = 0 - totalX;
+                                totalX = 0;
                             }
                             else {
                                 totalX += scrollByX;
@@ -426,17 +421,8 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
                             }
                         }
 
-                        //imageView.scrollBy((int) (mx - curX), 0);
                         imageView.scrollBy(scrollByX, 0);
                         mx = curX;
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        //imageView.scrollBy(0, 0);
-/*                        curX = event.getX();
-                        if (absX<0){
-                            break;
-                        }
-                        imageView.scrollBy((int) (mx - curX), 0);*/
                         break;
                 }
                 return true;
