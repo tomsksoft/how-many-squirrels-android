@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">How many squirrels</string>
+    <string name="app_name">How many squirrels 2.0</string>
     <string name="mainTabName">Главная</string>
     <string name="settingsPageTitle">Настройки</string>
     <string name="listViewTabName">Данные</string>
@@ -16,6 +16,7 @@
     <string name="cancel">Отмена</string>
     <string name="add">Добавить</string>
     <string name="delete">Удалить</string>
+    <string name="apply">Применить</string>
     <string name="dataPage_current_time">Текущие время и дата</string>
     <string name="dataPage_select_time">Укажу дату и время сам</string>
     <string name="dataPage_inputHint">Количество объектов</string>
@@ -40,6 +41,22 @@
     <string name="graphViewPage_displayDataUntilLabel">по</string>
     <string name="graphViewPage_displayTimeRelated">Отобразить данные с учетом оси времени</string>
     <string name="graphViewPage_displayNotTimeRelated">Отобразить данные без учета оси времени</string>
-
+    <string name="dataType_integer">Целый</string>
+    <string name="dataType_decimal">Вещественный</string>
+    <string name="dataType_enum">Перечислимый</string>
+    <string name="dataType_momentOfTime">Момент времени</string>
+    <string name="dataType_timePeriod">Интервал времени</string>
+    <string name="settingsPage_chooseType">Выберите тип</string>
+    <string name="settingsPage_paramName">Введите название</string>
+    <string name="settingsPage_paramDescription">Дополнительное описание</string>
+    <string name="settingsPage_emptyName">Пожалуйста, введите название</string>
+    <string name="settingsPage_dialogTitle">Изменение измеряемых данных</string>
+    <string name="dimension_years">л</string>
+    <string name="dimension_year">г</string>
+    <string name="dimension_months">м</string>
+    <string name="dimension_days">д</string>
+    <string name="dimension_hours">ч</string>
+    <string name="dimension_minutes">мин</string>
+    <string name="dimension_seconds">с</string>
 
 </resources>

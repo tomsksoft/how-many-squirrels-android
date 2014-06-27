@@ -11,6 +11,10 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
+import com.howmuchof.squirrels.android.DataType;
+import com.howmuchof.squirrels.android.Duration;
+import com.howmuchof.squirrels.android.R;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,6 +30,8 @@ public class GraphManager {
     Canvas canvas;
     Context context;
     GraphProperties gProps;
+    DataType datatype;
+    String[] enumValues;
 
     ArrayList<GraphValues> graphLines = new ArrayList<GraphValues>();
 
@@ -41,11 +47,16 @@ public class GraphManager {
         gProps = new GraphProperties();
     }
 
+    public void setDataType(DataType datatype){
+        this.datatype = datatype;
+        gProps.setDataType(datatype.getType());
+    }
+
     public GraphProperties getGraphProperties(){
         return gProps;
     }
 
-    public int addValues(int verValue, long horValue){
+    public int addValues(double verValue, long horValue){
         GraphValues graphLine = new GraphValues(verValue, horValue);
 
         if ((verValue < gProps.getMinVertValue()) || (gProps.getMinVertValue() == 0)){
@@ -66,17 +77,29 @@ public class GraphManager {
 
     private void drawGrid(){
         Log.d("DRAWING", "Max/Min values: " + gProps.getMaxVertValue() + " " + gProps.getMinVertValue());
-        float value = (float)(gProps.getMaxVertValue() - gProps.getMinVertValue())/10;
-        float lineValue = gProps.getMinVertValue();
+
+        double value = getGridLineValue();
+        double lineValue = gProps.getMinVertValue();
         int width = gProps.getGraphWidth(graphLines.size());
 
-        while (lineValue <= gProps.getMaxVertValue() + value) {
+        if (value == 0){
+            value =  gProps.getMaxVertValue();
+        }
+        double maxValue;
+        if (datatype.getType() == 2) {
+            maxValue = enumValues.length - 1;
+        }
+        else {
+            maxValue = gProps.getMaxVertValue() + value;
+        }
+
+        while (lineValue <= maxValue) {
             drawGridLine(lineValue, width);
             lineValue += value;
         }
     }
 
-    private void drawGridLine(float lineValue, int width){
+    private void drawGridLine(double lineValue, int width){
         Paint paint = gProps.getGridPaint();
 
         int yCoord = gProps.getGridYPos(lineValue);
@@ -85,26 +108,99 @@ public class GraphManager {
         Log.d("DRAWING", "Drawing line: " + gProps.getMarginLeft() + ", " + yCoord + ", "+ width + ", " + yCoord + ". Value: " + lineValue);
     }
 
+    private double getGridLineValue(){
+        switch(datatype.getType()){
+            case 0:
+                if (graphLines.size() < 10){
+                    if ((gProps.getMaxVertValue() - gProps.getMinVertValue())<graphLines.size()){
+                        return ((gProps.getMaxVertValue() - gProps.getMinVertValue())/(gProps.getMaxVertValue() - gProps.getMinVertValue()));
+                    }
+                    return (gProps.getMaxVertValue() - gProps.getMinVertValue())/graphLines.size();
+                }
+                return (gProps.getMaxVertValue() - gProps.getMinVertValue())/gProps.getVertLabelsAmount(graphLines.size());
+            case 1:
+                return (gProps.getMaxVertValue() - gProps.getMinVertValue())/gProps.getVertLabelsAmount(graphLines.size());
+            case 2:
+                return 1;
+            case 3:
+                return (gProps.getMaxVertValue() - gProps.getMinVertValue())/gProps.getVertLabelsAmount(graphLines.size());
+            case 4:
+                return (gProps.getMaxVertValue() - gProps.getMinVertValue())/gProps.getVertLabelsAmount(graphLines.size());
+            default:
+                return 0;
+        }
+    }
+
     public void drawVerticalLabels(Canvas canvas){
         if (graphLines.size() < 2){
             return;
         }
-        float value = (float)(gProps.getMaxVertValue() - gProps.getMinVertValue())/10;
-        float lineValue = gProps.getMinVertValue();
+        double lineValue = gProps.getMinVertValue();
+        double maxValue;
+        double value = getGridLineValue();
+        if (value == 0){
+            value =  gProps.getMaxVertValue();
+        }
 
-        while (lineValue <= gProps.getMaxVertValue() + value) {
+        Paint paint = new Paint();
+        paint.setTextSize(35);
+
+        switch(datatype.getType()){
+            case 2:
+                enumValues = datatype.getDesctiption().split(",");
+                gProps.setMinVertValue(0);
+                gProps.setMaxVertValue(enumValues.length - 1);
+                maxValue = gProps.getMaxVertValue();
+                break;
+            case 3:
+                maxValue = gProps.getMaxVertValue() + value;
+                paint.setTextSize(28);
+                break;
+            case 4:
+                gProps.setMinVertValue(-1000*60*15);
+                maxValue = gProps.getMaxVertValue();
+                break;
+            default:
+                maxValue = gProps.getMaxVertValue() + value;
+                break;
+        }
+
+        while (lineValue <= maxValue) {
             Log.d("DRAWING", "Vertical Label value: " + lineValue);
             int yCoord = gProps.getGridYPos(lineValue);
-            String label = String.format("%.2f", lineValue);
-            Paint paint = new Paint();
-            paint.setTextSize(35);
-            canvas.drawText(label, 0, yCoord+15, paint);
-
+            if (datatype.getType() == 3){
+                canvas.drawText(formatDate(new Date((long)lineValue),FORMAT_DATE), 0, yCoord - 7, paint);
+                canvas.drawText(formatDate(new Date((long)lineValue),FORMAT_TIME), 0, yCoord + 22, paint);
+            }
+            else {
+                canvas.drawText(getVerticalLabel(lineValue), 0, yCoord + 15, paint);
+            }
             lineValue += value;
         }
     }
 
-    public void changeCanvasSize(Canvas canvas, View imageView){
+    private String getVerticalLabel(double value){
+        switch(datatype.getType()){
+            case 0:
+                return String.format("%.1f", value);
+            case 1:
+                return String.valueOf(value);
+            case 2:
+                if ((int)value == -1){
+                    return "";
+                }
+                return enumValues[(int)value];
+            case 4:
+                if (value < 0){
+                    return "";
+                }
+                return formatDuration(new Duration((long)value));
+            default:
+                return String.valueOf(value);
+        }
+    }
+
+    public void changeLayoutSize(View imageView){
         LinearLayout.LayoutParams viewLp =
                 (LinearLayout.LayoutParams) imageView.getLayoutParams();
         viewLp.width = gProps.getGraphWidth(graphLines.size());
@@ -115,6 +211,7 @@ public class GraphManager {
     public void draw(Canvas canvas){
 
         if (graphLines.size()<2){
+            Log.d("DRAWING", "Graph bars: " + graphLines.size());
             canvas.drawColor(Color.TRANSPARENT);
             return;
         }
@@ -129,7 +226,7 @@ public class GraphManager {
         }
     }
 
-    private void drawGraph(int vertValue, long horzValue, int curGraph){
+    private void drawGraph(double vertValue, long horzValue, int curGraph){
 
         Paint barPaint = gProps.getBarPaint();
         Paint bar3DPaint = gProps.getBar3DPaint();
@@ -162,10 +259,10 @@ public class GraphManager {
     }
 
     protected class GraphValues{
-        public int yValue;
+        public double yValue;
         public long xValue;
 
-        public GraphValues(int yValue, long xValue){
+        public GraphValues(double yValue, long xValue){
             this.xValue = xValue;
             this.yValue = yValue;
         }
@@ -199,5 +296,29 @@ public class GraphManager {
         }
 
         return result;
+    }
+
+    private String formatDuration(Duration duration){
+        String value = "";
+
+        if (duration.getDays() > 0){
+            value += String.valueOf(duration.getDays());
+            value += context.getResources().getString(R.string.dimension_days);
+            value += " ";
+        }
+        if (duration.getHours() > 0){
+            value += String.valueOf(duration.getHours());
+            value += context.getResources().getString(R.string.dimension_hours);
+            value += " ";
+        }
+        if (duration.getMinutes() > 0){
+            value += String.valueOf(duration.getMinutes());
+            value += context.getResources().getString(R.string.dimension_minutes);
+            value += " ";
+        }
+        if ("".equals(value)){
+            value = "0" + context.getResources().getString(R.string.dimension_minutes);
+        }
+        return value;
     }
 }

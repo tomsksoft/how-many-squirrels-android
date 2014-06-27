@@ -8,7 +8,9 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -18,10 +20,12 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -48,6 +52,7 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
 
     DBHelper dbHelper;
     ImageView imageView;
+    ImageView vertGraphLabels;
     GraphManager graphManager;
     Context context;
 
@@ -55,6 +60,8 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
     EditText timeSinceEdit;
     EditText dateUntilEdit;
     EditText timeUntilEdit;
+    Button currentTypeButton;
+    LinearLayout topObjLinearLayout;
 
     boolean pickerIsActive;
     int focusedField;
@@ -66,6 +73,7 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
     int totalX;
     boolean redraw;
     int visibleWidth;
+    int currentObject;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
@@ -77,6 +85,7 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
         timeSinceEdit = (EditText) view.findViewById(R.id.time_since_edit_text);
         dateUntilEdit = (EditText) view.findViewById(R.id.date_until_edit_text);
         timeUntilEdit = (EditText) view.findViewById(R.id.time_until_edit_text);
+        topObjLinearLayout = (LinearLayout) view.findViewById(R.id.object_nav);
         dateSinceEdit.setOnFocusChangeListener(focusChangeListener);
         timeSinceEdit.setOnFocusChangeListener(focusChangeListener);
         dateUntilEdit.setOnFocusChangeListener(focusChangeListener);
@@ -85,56 +94,56 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
         dateSince = new Date();
         dateUntil = new Date();
 
-        ImageView vertGraphLabels = (ImageView) view.findViewById(R.id.vert_graph_labels_image_view);
-        vertGraphLabels.setImageDrawable(new VertLabelsGraphDrawable());
+        vertGraphLabels = (ImageView) view.findViewById(R.id.vert_graph_labels_image_view);
         imageView = (ImageView) view.findViewById(R.id.imageView);
         setOnTouchListener(imageView);
-        initRange();
         return view;
     }
 
     public void onResume(){
+        currentObject = -1;
+        createTopNavPanel();
+        vertGraphLabels.setImageDrawable(new VertLabelsGraphDrawable());
         imageView.setImageDrawable(new GraphDrawable());
-        initRange();
         showGraphics();
         totalX = minX;
         super.onResume();
     }
 
     private boolean checkDBData(){
-        if (2 <= dbHelper.getRowCount()) {
-            return true;
-        }
-        return false;
+        return 2 <= dbHelper.getRowCount(currentObject);
     }
 
     private void showGraphics(){
+        initRange();
+        imageView.scrollBy(-totalX, 0);
+        totalX = 0;
+        graphManager = new GraphManager(context);
         if (checkDBData()){
-            graphManager = new GraphManager(context);
             graphManager.getGraphProperties().setXFormat(GraphProperties.HOR_VALUES_DATE_FORMAT);
+            graphManager.setDataType(dbHelper.getType(currentObject));
             initGraphValues();
         }
         else {
-            graphManager = new GraphManager(context);
             Toast.makeText(getActivity(), R.string.graphViewPage_notEnoughData, Toast.LENGTH_LONG).show();
         }
+        vertGraphLabels.invalidate();
         imageView.invalidate();
         redraw = true;
     }
 
     private void initGraphValues(){
-
-        getGraphData(dbHelper.getDataFromDB(dateSince.getTime(), dateUntil.getTime()));
+        setGraphData(dbHelper.getDataFromDB(dateSince.getTime(), dateUntil.getTime(),currentObject));
     }
 
     private void initRange(){
-        Long dateValue = dbHelper.getDate(true);
+        Long dateValue = dbHelper.getDate(true, currentObject);
         if (dateValue > -1) {
             dateSinceEdit.setText(formatDate(dateValue, DATE_PICKER));
             timeSinceEdit.setText(formatDate(dateValue, TIME_PICKER));
             dateSince.setTime(dateValue);
         }
-        dateValue = dbHelper.getDate(false);
+        dateValue = dbHelper.getDate(false, currentObject);
         if (dateValue > -1) {
             dateUntilEdit.setText(formatDate(dateValue, DATE_PICKER));
             timeUntilEdit.setText(formatDate(dateValue, TIME_PICKER));
@@ -142,9 +151,18 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
         }
     }
 
-    private void getGraphData(List<Squirrel> squirrels){
+    private void setGraphData(List<Squirrel> squirrels){
+        int type = dbHelper.getType(currentObject).getType();
         for(Squirrel squirrel: squirrels){
-            graphManager.addValues(squirrel.getAmount(), squirrel.getDate());
+            if (type == 4){
+                Duration duration = new Duration();
+                duration.setDayTime((long)squirrel.getAmount(), (long)squirrel.getSecAmount());
+                graphManager.addValues(duration.getTime(), squirrel.getDate());
+            }
+            else {
+                graphManager.addValues(squirrel.getAmount(), squirrel.getDate());
+            }
+            Log.d("MYAPP", "Adding value: " +squirrel.getAmount() + " " + squirrel.getDate());
         }
     }
 
@@ -155,14 +173,14 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
 
     private View.OnFocusChangeListener focusChangeListener = new View.OnFocusChangeListener() {
         public void onFocusChange(View view, boolean gainFocus) {
+            Log.d("MYAPP","Here");
             switch (view.getId()){
                 case R.id.date_since_edit_text:{
                     if (gainFocus) {
                         if (!pickerIsActive) {
                             showPicker(DATE_PICKER, DATE_SINCE);
                         }
-                        view.clearFocus();
-
+                        topObjLinearLayout.requestFocus();
                     }
                     break;
                 }
@@ -171,7 +189,7 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
                         if (!pickerIsActive){
                             showPicker(TIME_PICKER, DATE_SINCE);
                         }
-                        view.clearFocus();
+                        topObjLinearLayout.requestFocus();
                     }
                     break;
                 }
@@ -180,7 +198,7 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
                         if (!pickerIsActive) {
                             showPicker(DATE_PICKER, DATE_UNTIL);
                         }
-                        view.clearFocus();
+                        topObjLinearLayout.requestFocus();
                     }
                     break;
                 }
@@ -189,7 +207,7 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
                         if (!pickerIsActive){
                             showPicker(TIME_PICKER, DATE_UNTIL);
                         }
-                        view.clearFocus();
+                        topObjLinearLayout.requestFocus();
                     }
                     break;
                 }
@@ -307,27 +325,25 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
         String result = "";
         DateFormat dateFormat;
 
-        if (date != null){
-            try {
-                if (requestType == DATE_PICKER) {
+        try {
+            if (requestType == DATE_PICKER) {
 
-                    String format = Settings.System.getString(context.getContentResolver(), Settings.System.DATE_FORMAT);
-                    if (TextUtils.isEmpty(format)) {
-                        dateFormat = android.text.format.DateFormat.getDateFormat(context);
-                    } else {
-                        dateFormat = new SimpleDateFormat(format);
-                    }
-                    result = dateFormat.format(date);
+                String format = Settings.System.getString(context.getContentResolver(), Settings.System.DATE_FORMAT);
+                if (TextUtils.isEmpty(format)) {
+                    dateFormat = android.text.format.DateFormat.getDateFormat(context);
+                } else {
+                    dateFormat = new SimpleDateFormat(format);
                 }
-                else if (requestType == TIME_PICKER) {
-                    dateFormat = android.text.format.DateFormat.getTimeFormat(context);
-                    result = " " + dateFormat.format(date);
-                }
+                result = dateFormat.format(date);
             }
-            catch (Exception e){
-                Log.d("CODE_ERROR","Couldn't resolve date with parameters: Date '" + date +
-                        "' and RequestType '" + requestType + "'");
+            else if (requestType == TIME_PICKER) {
+                dateFormat = android.text.format.DateFormat.getTimeFormat(context);
+                result = " " + dateFormat.format(date);
             }
+        }
+        catch (Exception e){
+            Log.d("CODE_ERROR","Couldn't resolve date with parameters: Date '" + date +
+                    "' and RequestType '" + requestType + "'");
         }
 
         return result;
@@ -343,8 +359,19 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
                 if (visibleWidth ==0) {
                     visibleWidth = canvas.getWidth();
                 }
-                graphManager.changeCanvasSize(canvas, imageView);
-                maxX = graphManager.getGraphProperties().getGraphWidth(graphManager.getSize()) - visibleWidth;
+
+
+                LinearLayout.LayoutParams vertGraphLp =
+                        (LinearLayout.LayoutParams) vertGraphLabels.getLayoutParams();
+
+                LinearLayout.LayoutParams viewLp =
+                        (LinearLayout.LayoutParams) imageView.getLayoutParams();
+                viewLp.width =
+                        graphManager.getGraphProperties().getGraphWidth(graphManager.getSize()) + vertGraphLp.width/2;
+                imageView.setLayoutParams(viewLp);
+
+                //graphManager.changeLayoutSize(imageView);
+                maxX = graphManager.getGraphProperties().getGraphWidth(graphManager.getSize()) - visibleWidth + vertGraphLp.width/2;
                 if (maxX < 0){
                     maxX = 0;
                 }
@@ -371,6 +398,7 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
 
         @Override
         public void draw(Canvas canvas) {
+            setVertGraphLabelsLayoutSize();
             graphManager.getGraphProperties().setCanvas(canvas);
             graphManager.drawVerticalLabels(canvas);
         }
@@ -386,6 +414,31 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
 
     }
 
+    private void setVertGraphLabelsLayoutSize(){
+        int type = dbHelper.getType(currentObject).getType();
+        int width;
+        switch(type){
+            case 2:
+                width = 150;
+                break;
+            case 3:
+                width = 150;
+                break;
+            case 4:
+                width = 150;
+                break;
+            default:
+                width = 64;
+                break;
+        }
+
+        LinearLayout.LayoutParams viewLp =
+                (LinearLayout.LayoutParams) vertGraphLabels.getLayoutParams();
+        viewLp.width = width;
+        vertGraphLabels.setLayoutParams(viewLp);
+    }
+
+
     private void setOnTouchListener(View view){
         view.setOnTouchListener(new View.OnTouchListener(){
             @Override
@@ -397,7 +450,6 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
 
                     case MotionEvent.ACTION_DOWN:
                         mx = event.getX();
-
                         break;
                     case MotionEvent.ACTION_MOVE:
                         curX = event.getX();
@@ -428,6 +480,46 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
                 return true;
             }
         });
+    }
+
+    private void createTopNavPanel(){
+        topObjLinearLayout.removeAllViews();
+        ScrollView sv = new ScrollView(getActivity());
+        sv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT));
+        LinearLayout ll = new LinearLayout(getActivity());
+        ll.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+        ll.setOrientation(LinearLayout.HORIZONTAL);
+        sv.addView(ll);
+
+        List<DataType> types = dbHelper.getTypes();
+        for(DataType dt: types){
+            Button b = new Button(getActivity());
+            b.setText(dt.getName());
+            b.setId(dt.getID());
+            b.setBackgroundColor(Color.parseColor("#DBDBDB"));
+            if (currentObject == -1){
+                currentObject = dt.getID();
+                currentTypeButton = b;
+            }
+            b.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View view) {
+                    currentTypeButton.setTextColor(Color.BLACK);
+                    currentTypeButton.setTypeface(null, Typeface.NORMAL);
+                    currentTypeButton = (Button)view;
+                    currentTypeButton.setTextColor(Color.parseColor("#5BCDF9"));
+                    currentTypeButton.setTypeface(null, Typeface.BOLD);
+                    currentObject = view.getId();
+                    showGraphics();
+                }
+            });
+            ll.addView(b);
+        }
+        currentTypeButton.setTextColor(Color.parseColor("#5BCDF9"));
+        currentTypeButton.setTypeface(null, Typeface.BOLD);
+        topObjLinearLayout.addView(sv);
     }
 
 }

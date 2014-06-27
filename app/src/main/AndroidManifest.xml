@@ -30,6 +30,11 @@
             android:name="com.howmuchof.squirrels.android.SettingsActivity"
             android:label="@string/settingsPageTitle">
         </activity>
+        <activity
+            android:name="com.howmuchof.squirrels.android.ModifyTypeActivity"
+            android:label="@string/dataPage_addPageTitle"
+            android:theme="@android:style/Theme.Holo.Light.Dialog">
+        </activity>
     </application>
 
 </manifest>

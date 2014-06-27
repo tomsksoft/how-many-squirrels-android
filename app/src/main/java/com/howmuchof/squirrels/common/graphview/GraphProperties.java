@@ -18,11 +18,11 @@ public class GraphProperties {
     int height;
     int width;
 
-    int minVertValue;
-    int maxVertValue;
-
-    int maxHorzValue;
-    int minHorzValue;
+    double minVertValue;
+    double maxVertValue;
+    long maxHorzValue;
+    long minHorzValue;
+    int vertLabelsAmount;
 
     Paint gridPaint;
     Paint horzLabelsPaint;
@@ -35,6 +35,8 @@ public class GraphProperties {
     int columnWidth;
     int marginLeft;
     int marginColumnLeft;
+
+    int type;
 
     public GraphProperties(){
         gridPaint = new Paint();
@@ -58,6 +60,11 @@ public class GraphProperties {
         horzLabelsPaint.setTextSize(35);
         horzLabelsPaint.setTextAlign(Paint.Align.CENTER);
 
+        type = 0;
+    }
+
+    public void setDataType(int type){
+        this.type = type;
     }
 
     public Paint getHorzLabelPaint(){
@@ -80,19 +87,27 @@ public class GraphProperties {
         return bar3DPaint;
     }
 
-    public int getMinVertValue(){
-        return minVertValue;
+    public double getMinVertValue(){
+
+        switch(type){
+            case 2:
+                return -1;
+            case 3:
+                return minVertValue - (maxVertValue - minVertValue)/50;
+            default:
+                return minVertValue;
+        }
     }
 
-    public int getMaxVertValue(){
+    public double getMaxVertValue(){
         return maxVertValue;
     }
 
-    public void setMinVertValue (int value){
+    public void setMinVertValue (double value){
         minVertValue = value;
     }
 
-    public void setMaxVertValue (int value){
+    public void setMaxVertValue (double value){
         maxVertValue = value;
     }
 
@@ -161,7 +176,7 @@ public class GraphProperties {
     }
 
     public GraphLine getGraphBarCoordinates(double yValue, int curGraph){
-        int topY = height - (int)((height - topBottomIndent*2)*((yValue - minVertValue+1)/(maxVertValue - minVertValue + 2))+topBottomIndent);
+        int topY = height - (int)((height - topBottomIndent*2)*((yValue - getMinVertValue()+1)/(maxVertValue - getMinVertValue() + 2))+topBottomIndent);
         int topX = curGraph * (columnWidth + graphIndent) + marginColumnLeft + marginLeft;
         int botY = height - topBottomIndent;
         int botX = topX + columnWidth;
@@ -171,11 +186,29 @@ public class GraphProperties {
         return graphLine;
     }
 
-    public int getGridYPos(float value){
-        return height - (int)((height - topBottomIndent*2)*((value - minVertValue+1)/(maxVertValue - minVertValue + 2))+topBottomIndent);
+    public int getGridYPos(double value){
+        return height - (int)((height - topBottomIndent*2)*((value - getMinVertValue()+1)/(maxVertValue - getMinVertValue() + 2))+topBottomIndent);
     }
 
     public int getGraphWidth(int graphAmount){
         return graphAmount * (graphIndent + columnWidth) + marginColumnLeft + marginLeft;
+    }
+
+    public int getVertLabelsAmount(){
+        if (vertLabelsAmount == 0){
+            return 10;
+        }
+        return vertLabelsAmount;
+    }
+
+    public int getVertLabelsAmount(int size){
+        if (size >= 10){
+            return 10;
+        }
+        return size;
+    }
+
+    public void setVertLabelsAmount(int amount){
+        vertLabelsAmount = amount;
     }
 }

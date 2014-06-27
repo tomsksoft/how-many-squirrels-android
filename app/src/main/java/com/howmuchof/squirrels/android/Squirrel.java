@@ -4,45 +4,62 @@ package com.howmuchof.squirrels.android;
  * Created by LinXi on 4/14/2014.
  */
 public class Squirrel {
-    int _id;
-    int _amount;
-    long _date;
+    int id;
+    int type;
+    double amount;
+    double secAmount;
+    long date;
 
     public Squirrel(){
 
     }
 
-    public Squirrel (int id, int amount, long date){
-        this._id = id;
-        this._amount = amount;
-        this._date = date;
+    public Squirrel (int id, int type, double amount, long date){
+        this.id = id;
+        this.type = type;
+        this.amount = amount;
+        this.date = date;
     }
 
     public void setID(int id){
-        this._id = id;
+        this.id = id;
     }
 
-    public void setAmount(int amount){
-        this._amount = amount;
+    public void setType(int type){
+        this.type = type;
+    }
+
+    public void setAmount(double amount){
+        this.amount = amount;
+    }
+    public void setSecAmount(double amount){
+        secAmount = amount;
     }
 
     public void setDate(long date){
-        this._date = date;
+        this.date = date;
     }
 
     public int getID(){
-        return _id;
+        return id;
     }
 
-    public int getAmount(){
-        return _amount;
+    public int getType(){
+        return type;
+    }
+
+    public double getAmount(){
+        return amount;
+    }
+    public double getSecAmount(){
+        return secAmount;
     }
 
     public long getDate(){
-        return _date;
+        return date;
     }
 
     public String toString(){
-        return _id + " " + _amount + " " + _date;
+        return id + " " + type +" " + amount + " " + date;
     }
 }

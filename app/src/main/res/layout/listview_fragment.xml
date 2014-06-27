@@ -1,63 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+    <HorizontalScrollView
+        android:id="@+id/scroll_pannel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#ffdbdbdb"
+        android:focusable="false">
 
-        <Button
+        <LinearLayout
+            android:id="@+id/object_nav"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/add"
-            android:id="@+id/add_line_btn"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:onClick="onClick"/>
+            android:orientation="horizontal" >
+        </LinearLayout>
+    </HorizontalScrollView>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/delete"
-            android:id="@+id/delete_btn"
-            android:onClick="onClick"
-            android:layout_alignParentTop="true"
-            android:layout_toRightOf="@+id/add_line_btn" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/ok"
-            android:id="@+id/ok_btn"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentRight="true"
-            android:visibility="invisible"
-            android:onClick="onClick"/>
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/cancel"
-            android:id="@+id/cancel_btn"
-            android:visibility="invisible"
-            android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/ok_btn"
-            android:onClick="onClick"/>
-    </RelativeLayout >
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/add"
+                android:id="@+id/add_line_btn"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:onClick="onClick" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/delete"
+                android:id="@+id/delete_btn"
+                android:onClick="onClick"
+                android:layout_alignParentTop="true"
+                android:layout_toRightOf="@+id/add_line_btn" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/ok"
+                android:id="@+id/ok_btn"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:visibility="invisible"
+                android:onClick="onClick"/>
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/cancel"
+                android:id="@+id/cancel_btn"
+                android:visibility="invisible"
+                android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@+id/ok_btn"
+                android:onClick="onClick"/>
+        </RelativeLayout >
+    </LinearLayout>
 
     <ListView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:id="@+id/listView"
-        android:layout_gravity="center_vertical"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="50dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-</RelativeLayout>
+        android:id="@+id/listView"/>
+</LinearLayout>

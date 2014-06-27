@@ -2,121 +2,151 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:id="@+id/mainLayout"
-    android:weightSum="1">
+    android:layout_height="fill_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/graphViewPage_displayDataLabel"
-        android:id="@+id/textView6"
-        android:layout_marginLeft="25dp"
-        android:layout_marginTop="15dp" />
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:focusable="true"
-        android:focusableInTouchMode="true">
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/graphViewPage_displayDataSinceLabel"
-            android:id="@+id/textView4"
-            android:layout_weight="4" />
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/date_since_edit_text"
-            android:editable="false"
-            android:layout_weight="2" />
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/time_since_edit_text"
-            android:editable="false"
-            android:layout_weight="3" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
+    <HorizontalScrollView
+        android:id="@+id/scroll_pannel"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:id="@+id/graph_view_layout">
+        android:background="#ffdbdbdb" >
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/graphViewPage_displayDataUntilLabel"
-            android:id="@+id/textView5"
-            android:layout_weight="4" />
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/date_until_edit_text"
-            android:editable="false"
-            android:layout_weight="2" />
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/time_until_edit_text"
-            android:editable="false"
-            android:layout_weight="3" />
-    </LinearLayout>
-
-    <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <RadioButton
+        <LinearLayout
+            android:id="@+id/object_nav"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/graphViewPage_displayTimeRelated"
-            android:id="@+id/radioButton3"
-            android:layout_marginLeft="25dp"
-            android:enabled="false"/>
+            android:orientation="horizontal"
+            android:focusable="true"
+            android:focusableInTouchMode="true">
+        </LinearLayout>
+    </HorizontalScrollView>
 
-        <RadioButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/graphViewPage_displayNotTimeRelated"
-            android:id="@+id/radioButton2"
-            android:layout_marginLeft="25dp"
-            android:checked="true"
-            android:enabled="false"/>
-    </RadioGroup>
-
-    <LinearLayout
-        android:orientation="horizontal"
+    <ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="250dp"
-        android:layout_margin="15dp">
+        android:layout_height="wrap_content">
+        <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
-        <ImageView
-            android:layout_width="32dp"
-            android:layout_height="match_parent"
-            android:id="@+id/vert_graph_labels_image_view"/>
 
-        <ImageView
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/imageView"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true" />
-    </LinearLayout>
+            android:layout_height="fill_parent">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/graphViewPage_displayDataLabel"
+                android:id="@+id/textView6"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="15dp" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/graphViewPage_displayDataSinceLabel"
+                    android:id="@+id/textView4"
+                    android:layout_weight="4" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/date_since_edit_text"
+                    android:editable="false"
+                    android:layout_weight="2" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/time_since_edit_text"
+                    android:editable="false"
+                    android:layout_weight="3" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:id="@+id/graph_view_layout">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/graphViewPage_displayDataUntilLabel"
+                    android:id="@+id/textView5"
+                    android:layout_weight="4" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/date_until_edit_text"
+                    android:editable="false"
+                    android:layout_weight="2" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/time_until_edit_text"
+                    android:editable="false"
+                    android:layout_weight="3" />
+            </LinearLayout>
+
+            <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/graphViewPage_displayTimeRelated"
+                    android:id="@+id/radioButton3"
+                    android:layout_marginLeft="25dp"
+                    android:enabled="false"/>
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/graphViewPage_displayNotTimeRelated"
+                    android:id="@+id/radioButton2"
+                    android:layout_marginLeft="25dp"
+                    android:checked="true"
+                    android:enabled="false"/>
+            </RadioGroup>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="250dp"
+                android:layout_margin="15dp">
+
+                <ImageView
+                    android:layout_width="32dp"
+                    android:layout_height="match_parent"
+                    android:id="@+id/vert_graph_labels_image_view"/>
+
+                <ImageView
+                    android:layout_width="fill_parent"
+                    android:layout_height="match_parent"
+                    android:id="@+id/imageView"
+                    android:layout_alignParentLeft="true"
+                    android:layout_alignParentTop="true" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+    </ScrollView>
 </LinearLayout>

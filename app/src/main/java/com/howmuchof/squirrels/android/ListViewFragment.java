@@ -5,6 +5,8 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.PaintDrawable;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -15,16 +17,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -36,10 +38,13 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
     static final int REQUEST_CODE_ADD = 0;
     static final int REQUEST_CODE_UPDATE = 1;
     static final int GRAPH_VIEW_TAB = 2;
+    static final int ENUM_DATATYPE = 2;
+
     Button addBtn;
     Button deleteBtn;
     Button okBtn;
     Button cancelBtn;
+    LinearLayout topObjLinearLayout;
     ListView listView;
     DBHelper dbHelper;
     Boolean deleteMode;
@@ -47,6 +52,10 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
     List<Integer> itemsToRemove;
     int backgColor;
     boolean popUpIsRan;
+    int currentObject;
+    Button currentTypeButton;
+    int type;
+    String[] values;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState){
@@ -61,16 +70,16 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
         cancelBtn.setOnClickListener(this);
         deleteMode = false;
         itemsToRemove = new ArrayList<Integer>();
-
-        listViewActions(view);
-
+        addListViewListener(view);
         dbHelper = new DBHelper(getActivity());
-        //fillListView();
+        topObjLinearLayout = (LinearLayout) view.findViewById(R.id.object_nav);
         initBackgroundColor();
         return view;
     }
 
     public void onResume(){
+        currentObject = -1;
+        createTopNavPanel();
         fillListView();
         super.onResume();
     }
@@ -97,12 +106,12 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
                 break;
             }
         }
-
     }
 
     private void launchAddDataDialog(){
         popUpIsRan = true;
         Intent intent = new Intent(getActivity(), AddDataActivity.class);
+        intent.putExtra("type", currentObject);
         startActivityForResult(intent, REQUEST_CODE_ADD);
     }
 
@@ -110,8 +119,6 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
         popUpIsRan = true;
         Intent intent = new Intent(getActivity(), ModifyDataActivity.class);
         intent.putExtra("id", squirrel.getID());
-        intent.putExtra("date", squirrel.getDate());
-        intent.putExtra("amount", squirrel.getAmount());
         startActivityForResult(intent, REQUEST_CODE_UPDATE);
     }
 
@@ -135,11 +142,12 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
     private void fillListView(){
         ArrayList<HashMap<String, String>> items = new ArrayList<HashMap<String, String>>();
         String date;
-        objList = dbHelper.getDataFromDBSortedByDate();
+        objList = dbHelper.getDataFromDBSortedByDate(currentObject);
 
         for (Squirrel s: objList) {
             HashMap<String, String> map = new HashMap<String, String>();
-            map.put("amount", String.valueOf(s.getAmount()));
+            Log.d("MYAPP","Amount: " + s.getAmount() + " type: " + type + " SecAmount: " + s.getSecAmount());
+            map.put("amount", getAmountValue(s.getAmount(), s.getSecAmount()));
 
             date = formatDate(new Date(s.getDate()));
             map.put("date", date);
@@ -151,10 +159,36 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
                 new int[]{R.id.amount_textview, R.id.date_textview});
 
         listView.setAdapter(adapter);
-
     }
 
-    void listViewActions(View view){
+    private String getAmountValue(double value, double secValue){
+        Log.d("MYAPP", "Got value: " + value);
+        String text = "";
+        switch(type){
+            case 0:
+                text = String.valueOf((int)value);
+                break;
+            case 1:
+                text = String.valueOf(value);
+                break;
+            case 2:
+                text = values[(int)value];
+                break;
+            case 3:
+                Date date = new Date();
+                date.setTime((long)value);
+                text = formatDate(date);
+                break;
+            case 4:
+                Duration duration = new Duration();
+                duration.setDayTime((long)value, (long)secValue);
+                text = formatDuration(duration);
+                break;
+        }
+        return text;
+    }
+
+    void addListViewListener(View view){
         listView = (ListView) view.findViewById(R.id.listView);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -210,7 +244,6 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
         okBtn.setVisibility(View.VISIBLE);
         okBtn.setEnabled(false);
         cancelBtn.setVisibility(View.VISIBLE);
-
     }
 
     private void initBackgroundColor(){
@@ -247,4 +280,80 @@ public class ListViewFragment extends Fragment implements View.OnClickListener{
         return result;
     }
 
+    private void createTopNavPanel(){
+        topObjLinearLayout.removeAllViews();
+        ScrollView sv = new ScrollView(getActivity());
+        sv.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT));
+        LinearLayout ll = new LinearLayout(getActivity());
+        ll.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT));
+        ll.setOrientation(LinearLayout.HORIZONTAL);
+        sv.addView(ll);
+
+        List<DataType> types = dbHelper.getTypes();
+        for(DataType dt: types){
+            Button b = new Button(getActivity());
+            b.setText(dt.getName());
+            b.setId(dt.getID());
+            b.setBackgroundColor(Color.parseColor("#DBDBDB"));
+            if (currentObject == -1){
+                type = dt.getType();
+                if (type == ENUM_DATATYPE){
+                    String description = dt.getDesctiption();
+                    values = description.split(",");
+                }
+                currentObject = dt.getID();
+                currentTypeButton = b;
+            }
+            b.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    currentTypeButton.setTextColor(Color.BLACK);
+                    currentTypeButton.setTypeface(null, Typeface.NORMAL);
+                    currentTypeButton = (Button) view;
+                    currentTypeButton.setTextColor(Color.parseColor("#5BCDF9"));
+                    currentTypeButton.setTypeface(null, Typeface.BOLD);
+                    currentObject = view.getId();
+                    DataType dt = dbHelper.getType(currentObject);
+                    type = dt.getType();
+                    if (type == ENUM_DATATYPE){
+                        String description = dt.getDesctiption();
+                        values = description.split(",");
+                    }
+                    fillListView();
+                }
+            });
+            ll.addView(b);
+        }
+        if (currentTypeButton != null) {
+            currentTypeButton.setTextColor(Color.parseColor("#5BCDF9"));
+            currentTypeButton.setTypeface(null, Typeface.BOLD);
+        }
+        topObjLinearLayout.addView(sv);
+    }
+
+    private String formatDuration(Duration duration){
+        String value = "";
+
+        /*if (duration.getDays() > 0){
+            value += String.valueOf(duration.getDays());
+            value += getResources().getString(R.string.dimension_days);
+            value += " ";
+        }*/
+        if (duration.getHours() > 0){
+            value += String.valueOf(duration.getHours());
+            value += getResources().getString(R.string.dimension_hours);
+            value += " ";
+        }
+        if (duration.getMinutes() > 0){
+            value += String.valueOf(duration.getMinutes());
+            value += getResources().getString(R.string.dimension_minutes);
+            value += " ";
+        }
+        if ("".equals(value)){
+            value = "0" + getResources().getString(R.string.dimension_minutes);
+        }
+        return value;
+    }
 }
