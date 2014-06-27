@@ -13,9 +13,19 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
-/**
- * Created by LinXi on 4/13/2014.
- */
+/*
+  * How many squirrels: tool for young naturalist
+  *
+  * This application is created within the internship
+  * in the Education Department of Tomsksoft, http://tomsksoft.com
+  * Idea and leading: Sergei Borisov
+  *
+  * This software is licensed under a GPL v3
+  * http://www.gnu.org/licenses/gpl.txt
+  *
+  * Created by Viacheslav Voronov on 4/13/2014
+  */
+
 public class SettingsActivity extends Activity implements View.OnClickListener {
 
     final static String SHAREDPREFNAME = "HowMuchOfShPref";

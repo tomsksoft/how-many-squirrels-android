@@ -8,7 +8,6 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
 import java.text.DateFormat;
@@ -16,6 +15,19 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+/*
+  * How many squirrels: tool for young naturalist
+  *
+  * This application is created within the internship
+  * in the Education Department of Tomsksoft, http://tomsksoft.com
+  * Idea and leading: Sergei Borisov
+  *
+  * This software is licensed under a GPL v3
+  * http://www.gnu.org/licenses/gpl.txt
+  *
+  * Created by Viacheslav Voronov on 4/13/2014
+  */
 
 public class GraphManager {
 
