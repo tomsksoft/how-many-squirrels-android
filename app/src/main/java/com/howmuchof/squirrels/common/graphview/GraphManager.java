@@ -22,7 +22,6 @@ public class GraphManager {
     private final static int FORMAT_DATE = 0;
     private final static int FORMAT_TIME = 1;
 
-    View imageView;
     Canvas canvas;
     Context context;
     GraphProperties gProps;
@@ -67,6 +66,9 @@ public class GraphManager {
     private void drawGrid(){
         Log.d("DRAWING", "Max/Min values: " + gProps.getMaxVertValue() + " " + gProps.getMinVertValue());
         float value = (float)(gProps.getMaxVertValue() - gProps.getMinVertValue())/10;
+        if (value == 0){
+            value =  (float)gProps.getMaxVertValue();
+        }
         float lineValue = gProps.getMinVertValue();
         int width = gProps.getGraphWidth(graphLines.size());
 
@@ -90,6 +92,9 @@ public class GraphManager {
             return;
         }
         float value = (float)(gProps.getMaxVertValue() - gProps.getMinVertValue())/10;
+        if (value == 0){
+            value =  (float)gProps.getMaxVertValue();
+        }
         float lineValue = gProps.getMinVertValue();
 
         while (lineValue <= gProps.getMaxVertValue() + value) {
@@ -104,7 +109,7 @@ public class GraphManager {
         }
     }
 
-    public void changeCanvasSize(Canvas canvas, View imageView){
+    public void changeCanvasSize(View imageView){
         LinearLayout.LayoutParams viewLp =
                 (LinearLayout.LayoutParams) imageView.getLayoutParams();
         viewLp.width = gProps.getGraphWidth(graphLines.size());

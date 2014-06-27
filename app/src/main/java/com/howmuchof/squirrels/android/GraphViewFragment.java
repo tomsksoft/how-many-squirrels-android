@@ -343,7 +343,7 @@ public class GraphViewFragment extends Fragment implements View.OnClickListener{
                 if (visibleWidth ==0) {
                     visibleWidth = canvas.getWidth();
                 }
-                graphManager.changeCanvasSize(canvas, imageView);
+                graphManager.changeCanvasSize(imageView);
                 maxX = graphManager.getGraphProperties().getGraphWidth(graphManager.getSize()) - visibleWidth;
                 if (maxX < 0){
                     maxX = 0;
