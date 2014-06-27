@@ -9,9 +9,19 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by LinXi on 4/14/2014.
- */
+/*
+  * How many squirrels: tool for young naturalist
+  *
+  * This application is created within the internship
+  * in the Education Department of Tomsksoft, http://tomsksoft.com
+  * Idea and leading: Sergei Borisov
+  *
+  * This software is licensed under a GPL v3
+  * http://www.gnu.org/licenses/gpl.txt
+  *
+  * Created by Viacheslav Voronov on 4/14/2014
+  */
+
 public class DBHelper extends SQLiteOpenHelper {
 
     private static String TABLE_NAME = "objects";

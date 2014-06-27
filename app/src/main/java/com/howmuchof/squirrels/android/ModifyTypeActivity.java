@@ -15,9 +15,19 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-/**
- * Created by LinXi on 6/17/2014.
- */
+/*
+  * How many squirrels: tool for young naturalist
+  *
+  * This application is created within the internship
+  * in the Education Department of Tomsksoft, http://tomsksoft.com
+  * Idea and leading: Sergei Borisov
+  *
+  * This software is licensed under a GPL v3
+  * http://www.gnu.org/licenses/gpl.txt
+  *
+  * Created by Viacheslav Voronov on 6/17/2014
+  */
+
 public class ModifyTypeActivity extends Activity implements View.OnClickListener, AdapterView.OnItemSelectedListener {
 
     final static int REQUEST_CODE_ADD = 0;

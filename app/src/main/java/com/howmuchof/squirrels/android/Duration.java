@@ -2,9 +2,19 @@ package com.howmuchof.squirrels.android;
 
 import java.util.Date;
 
-/**
- * Created by tieru on 6/24/14.
- */
+/*
+  * How many squirrels: tool for young naturalist
+  *
+  * This application is created within the internship
+  * in the Education Department of Tomsksoft, http://tomsksoft.com
+  * Idea and leading: Sergei Borisov
+  *
+  * This software is licensed under a GPL v3
+  * http://www.gnu.org/licenses/gpl.txt
+  *
+  * Created by Viacheslav Voronov on 6/24/14
+  */
+
 public class Duration {
 
     long time;
